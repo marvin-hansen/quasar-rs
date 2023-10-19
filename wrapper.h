@@ -1,0 +1,21 @@
+#include "qdb/include/qdb/arrow_abi.h"
+#include "qdb/include/qdb/batch.h"
+#include "qdb/include/qdb/blob.h"
+#include "qdb/include/qdb/client.h"
+#include "qdb/include/qdb/direct.h"
+#include "qdb/include/qdb/error.h"
+#include "qdb/include/qdb/integer.h"
+#include "qdb/include/qdb/iterator.h"
+#include "qdb/include/qdb/log.h"
+#include "qdb/include/qdb/node.h"
+#include "qdb/include/qdb/option.h"
+#include "qdb/include/qdb/perf.h"
+#include "qdb/include/qdb/prefix.h"
+#include "qdb/include/qdb/query.h"
+#include "qdb/include/qdb/suffix.h"
+#include "qdb/include/qdb/tag.h"
+#include "qdb/include/qdb/ts.h"
+
+// version.h:60:5: error: token is not a valid
+// binary operator in a preprocessor subexpression
+//#include "qdb/include/qdb/version.h"
