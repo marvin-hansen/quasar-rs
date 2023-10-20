@@ -9,3 +9,7 @@ edition = "2021"
 
 [build-dependencies]
 bindgen = "0.68.1"
+
+# This doesn't work
+#[profile.dev]
+#rpath = true
