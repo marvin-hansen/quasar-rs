@@ -1,7 +1,39 @@
+use std::error::Error;
 use std::fmt;
 
 use crate::{qdb_error_origin_t, qdb_error_t_qdb_e_access_denied, qdb_error_t_qdb_e_alias_already_exists, qdb_error_t_qdb_e_alias_not_found, qdb_error_t_qdb_e_alias_too_long, qdb_error_t_qdb_e_buffer_too_small, qdb_error_t_qdb_e_clock_skew, qdb_error_t_qdb_e_column_not_found, qdb_error_t_qdb_e_conflict, qdb_error_t_qdb_e_connection_refused, qdb_error_t_qdb_e_connection_reset, qdb_error_t_qdb_e_container_empty, qdb_error_t_qdb_e_container_full, qdb_error_t_qdb_e_data_corruption, qdb_error_t_qdb_e_element_already_exists, qdb_error_t_qdb_e_element_not_found, qdb_error_t_qdb_e_entry_too_large, qdb_error_t_qdb_e_host_not_found, qdb_error_t_qdb_e_incompatible_type, qdb_error_t_qdb_e_internal_local, qdb_error_t_qdb_e_internal_remote, qdb_error_t_qdb_e_interrupted, qdb_error_t_qdb_e_invalid_argument, qdb_error_t_qdb_e_invalid_crypto_key, qdb_error_t_qdb_e_invalid_handle, qdb_error_t_qdb_e_invalid_iterator, qdb_error_t_qdb_e_invalid_protocol, qdb_error_t_qdb_e_invalid_query, qdb_error_t_qdb_e_invalid_regex, qdb_error_t_qdb_e_invalid_reply, qdb_error_t_qdb_e_invalid_version, qdb_error_t_qdb_e_iterator_end, qdb_error_t_qdb_e_login_failed, qdb_error_t_qdb_e_network_error, qdb_error_t_qdb_e_network_inbuf_too_small, qdb_error_t_qdb_e_no_memory_local, qdb_error_t_qdb_e_no_memory_remote, qdb_error_t_qdb_e_no_space_left, qdb_error_t_qdb_e_not_connected, qdb_error_t_qdb_e_not_implemented, qdb_error_t_qdb_e_ok, qdb_error_t_qdb_e_ok_created, qdb_error_t_qdb_e_operation_disabled, qdb_error_t_qdb_e_operation_not_permitted, qdb_error_t_qdb_e_out_of_bounds, qdb_error_t_qdb_e_overflow, qdb_error_t_qdb_e_query_too_complex, qdb_error_t_qdb_e_quota_exceeded, qdb_error_t_qdb_e_reserved_alias, qdb_error_t_qdb_e_resource_locked, qdb_error_t_qdb_e_skipped, qdb_error_t_qdb_e_system_local, qdb_error_t_qdb_e_system_remote, qdb_error_t_qdb_e_tag_already_set, qdb_error_t_qdb_e_tag_not_set, qdb_error_t_qdb_e_timeout, qdb_error_t_qdb_e_transaction_partial_failure, qdb_error_t_qdb_e_try_again, qdb_error_t_qdb_e_underflow, qdb_error_t_qdb_e_uninitialized, qdb_error_t_qdb_e_unknown_user, qdb_error_t_qdb_e_unmatched_content, qdb_error_t_qdb_e_unstable_cluster};
 
+// Common trait for custom errors.
+pub trait Errorable {
+    fn error_code(&self) -> i32;
+    fn error_message(&self) -> String;
+}
+
+// RawPointerError covers edge cases when dealing with FFI raw pointer going nuts
+#[derive(Debug)]
+pub struct RawPointerError(pub String);
+
+impl Errorable for RawPointerError {
+     fn error_code(&self) -> i32 {
+         // Maps to ErrSystemLocal / qdb_error_t = -486539263
+         // System error on local system (client-side).\n! Please check `errno` or `GetLastError()` for actual error.
+         qdb_error_t_qdb_e_system_local
+     }
+
+    fn error_message(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl Error for RawPointerError {}
+
+impl fmt::Display for RawPointerError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "RawPointerError: {}", self.0) }
+}
+
+
+// ErrorType is an Enum wrapper around various qdb_error_origin_t constants
+//
 // qdb_error_origin_t is ffi::c_int  which is equivalent to C’s signed int (int) type.
 // This type will almost always be i32, but may differ on some esoteric systems.
 // https://do = qdb_error_t_rust-lang.org/stable/std/ffi/type.c_int.html
@@ -223,7 +255,7 @@ impl ErrorType {
             qdb_error_t_qdb_e_alias_not_found => ErrorType::ErrAliasNotFound,
             qdb_error_t_qdb_e_alias_already_exists => ErrorType::ErrAliasAlreadyExists,
             qdb_error_t_qdb_e_out_of_bounds => ErrorType::ErrOutOfBounds,
-            qdb_error_t_qdb_e_skipped  => ErrorType::ErrSkipped,
+            qdb_error_t_qdb_e_skipped => ErrorType::ErrSkipped,
             qdb_error_t_qdb_e_incompatible_type => ErrorType::ErrIncompatibleType,
             qdb_error_t_qdb_e_container_empty => ErrorType::ErrContainerEmpty,
             qdb_error_t_qdb_e_container_full => ErrorType::ErrContainerFull,
