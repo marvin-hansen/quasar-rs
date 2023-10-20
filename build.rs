@@ -1,16 +1,23 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
+    let key = "LLVM_CONFIG_PATH";
+    env::set_var(key, env::var(key).unwrap_or("/opt/homebrew/opt/llvm/bin/llvm-config".to_string()));
 
-    // let key = "LLVM_CONFIG_PATH";
-    // env::set_var(key, env::var(key).unwrap_or("/opt/homebrew/opt/llvm/bin/llvm-config".to_string()));
+    // https://rust-lang.github.io/rust-bindgen/requirements.html#clang
+    let key = "LIBCLANG_PATH";
+    env::set_var(key, env::var(key).unwrap_or("/opt/homebrew/opt/llvm/lib".to_string()));
 
     // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search=/Users/marvin/CLionProjects/quasar-rs/qdb/lib/");
+    // println!("cargo:rustc-link-search=dylib=qdb/lib/");
+
+    //
+    let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    println!("cargo:rustc-link-search=dylib={}", Path::new(&dir).join("qdb/lib/").display());
 
     // Tell rustc to link the qdb library.
-    println!("cargo:rustc-link-lib=libqdb_api");
+    println!("cargo:rustc-link-lib=dylib=libqdb_api");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
