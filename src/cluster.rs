@@ -20,6 +20,7 @@ impl Cluster {
 
     /// PurgeAll : Removes irremediably all data from all the nodes of the cluster.
     /// This function is useful when quasardb is used as a cache and is not the golden source.
+    ///
     /// This call is not atomic: if the command cannot be dispatched on the whole cluster,
     /// it will be dispatched on as many nodes as possible and the function will return with a qdb_e_ok code.
     /// By default cluster does not allow this operation and the function returns a qdb_e_operation_disabled error.
@@ -31,8 +32,8 @@ impl Cluster {
     }
 
     /// PurgeCache : Removes all cached data from all the nodes of the cluster.
-    ///    This function is disabled on a transient cluster.
-    ///    Prefer purge_all in this case.
+    /// This function is disabled on a transient cluster.
+    /// Prefer purge_all in this case.
     ///
     /// This call is not atomic: if the command cannot be dispatched on the whole cluster,
     /// it will be dispatched on as many nodes as possible and the function will return with a qdb_e_ok code.
@@ -60,6 +61,7 @@ impl Cluster {
     }
 
     /// WaitForStabilization : Wait for all nodes of the cluster to be stabilized.
+    ///
     /// Takes a timeout value, in milliseconds.
     pub fn WaitForStabilization(&self, timeout_ms: i32) -> Option<ErrorType> {
         unsafe {
@@ -69,6 +71,8 @@ impl Cluster {
     }
 
     /// Endpoints : Retrieve all endpoints accessible to this handle.
+    ///
+    /// Returns Result type of either Vec<Endpoint> or an ErrorType.
     pub fn Endpoints(&self) -> Result<Vec<Endpoint>, ErrorType> {
         unsafe {
             // create a new mutable raw pointer to pass to the underlying FFI function
@@ -120,7 +124,8 @@ impl Cluster {
     }
 }
 
-/// Converts  an FFI raw pointer to Vec<Endpoint>
+/// raw_pointer_to_vector: Converts  an FFI raw pointer to Vec<Endpoint>
+///
 /// Returns Result type of either Vec<Endpoint> or an RawPointerError.
 /// RawPointerError maps to ErrorType: ErrSystemLocal / qdb_error_t = -486539263
 fn raw_pointer_to_vector(endpoints_ref: *mut *mut qdb_remote_node_t, endpoints_count: usize) -> Result<Vec<Endpoint>, RawPointerError> {
@@ -131,7 +136,6 @@ fn raw_pointer_to_vector(endpoints_ref: *mut *mut qdb_remote_node_t, endpoints_c
     }
 
     let mut output: Vec<Endpoint> = vec![];
-
 
     unsafe {
         if endpoints_count > 0 {
@@ -163,7 +167,8 @@ fn raw_pointer_to_vector(endpoints_ref: *mut *mut qdb_remote_node_t, endpoints_c
     Ok(output)
 }
 
-/// Converts an FFI raw pointer into an Endpoint struct
+/// raw_pointer_to_endpoint: Converts an FFI raw pointer into an Endpoint struct
+///
 /// Returns Result type of either an Endpoint or an RawPointerError.
 /// RawPointerError maps to ErrorType: ErrSystemLocal / qdb_error_t = -486539263
 fn raw_pointer_to_endpoint(endpoint_ptr: *const qdb_remote_node_t) -> Result<Endpoint, RawPointerError> {
@@ -192,8 +197,7 @@ fn raw_pointer_to_endpoint(endpoint_ptr: *const qdb_remote_node_t) -> Result<End
         }
     };
 
-    // u32 and all primitive types in Rust are guaranteed to clone by value
-    // hence we don't need to call to_owned() or clone() on port.
+    // u32 and all primitive types in Rust are guaranteed to clone by value hence we don't need to call to_owned() or clone().
     // Also, because of the previous conversion to a Rust reference, we can safely access the field without unsafe block
     let port = endpoint_ref.port as u32;
 
