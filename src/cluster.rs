@@ -12,8 +12,10 @@ pub struct Cluster {
 }
 
 impl Cluster {
-    pub fn new(handle_tpe: qdb_handle_t) -> Cluster {
-        Cluster { handle: handle_tpe }
+
+    /// Creates a new cluster object permitting calls to a cluster
+    pub fn new(handle: qdb_handle_t) -> Cluster {
+        Cluster { handle }
     }
 
     /// PurgeAll : Removes irremediably all data from all the nodes of the cluster.
@@ -27,7 +29,6 @@ impl Cluster {
             makeErrorNone(err)
         }
     }
-
 
     /// PurgeCache : Removes all cached data from all the nodes of the cluster.
     ///    This function is disabled on a transient cluster.
@@ -70,8 +71,10 @@ impl Cluster {
     /// Endpoints : Retrieve all endpoints accessible to this handle.
     pub fn Endpoints(&self) -> Result<Vec<Endpoint>, ErrorType> {
         unsafe {
-            // create a new mutable raw pointer
+            // create a new mutable raw pointer to pass to the underlying FFI function
             let endpoints_raw_pointer = ptr::null_mut();
+
+            // create a new mutable counter to pass to the underlying FFI function
             let mut endpoints_count: qdb_size_t = 0;
 
             let err = qdb_cluster_endpoints(
@@ -80,6 +83,7 @@ impl Cluster {
                 &mut endpoints_count,
             );
 
+            // no error
             if err == 0 {
                 let endpoints = raw_pointer_to_vector(
                     endpoints_raw_pointer,
@@ -94,6 +98,9 @@ impl Cluster {
                         Ok(endpoints)
                     }
                     Err(err) => {
+                        // drop the raw pointer https://doc.rust-lang.org/stable/std/ptr/fn.drop_in_place.html
+                        ptr::drop_in_place(endpoints_raw_pointer);
+
                         // Convert RawPointer Error to ErrorType. This will lead to a the following ErrorType
                         // ErrSystemLocal / qdb_error_t_qdb_e_system_local =  qdb_error_t = -486539263
                         // System error on local system (client-side).\n! Please check `errno` or `GetLastError()` for actual error.
@@ -103,6 +110,9 @@ impl Cluster {
                     }
                 };
             }
+
+            // drop the raw pointer https://doc.rust-lang.org/stable/std/ptr/fn.drop_in_place.html
+            ptr::drop_in_place(endpoints_raw_pointer);
 
             // extract error code from response and return
             return Err(ErrorType::from_qdb_error_origin_t(err));
@@ -137,6 +147,7 @@ fn raw_pointer_to_vector(endpoints_ref: *mut *mut qdb_remote_node_t, endpoints_c
                     Err(err) => {
                         // drop the raw pointer to prevent memory leak https://doc.rust-lang.org/stable/std/ptr/fn.drop_in_place.html
                         ptr::drop_in_place(slice[i]);
+
                         return Err(err);
                     }
                 }
