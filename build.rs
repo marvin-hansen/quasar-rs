@@ -10,14 +10,14 @@ fn main() {
     env::set_var(key, env::var(key).unwrap_or("/opt/homebrew/opt/llvm/lib".to_string()));
 
     // Tell cargo to look for shared libraries in the specified directory
-    // println!("cargo:rustc-link-search=dylib=qdb/lib/");
+    // println!("cargo:rustc-link-search=dylib=./qdb/lib/");
 
-    //
+    // https://doc.rust-lang.org/cargo/reference/build-scripts.html#rustc-link-search
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    println!("cargo:rustc-link-search=dylib={}", Path::new(&dir).join("qdb/lib/").display());
+    println!("cargo:rustc-link-search={}", Path::new(&dir).join("qdb/lib/").display());
 
     // Tell rustc to link the qdb library.
-    println!("cargo:rustc-link-lib=dylib=libqdb_api");
+    // println!("cargo:rustc-link-lib=libqdb_api");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
