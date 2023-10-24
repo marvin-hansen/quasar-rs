@@ -1,4 +1,3 @@
-use std::fmt::Error;
 use std::fs::File;
 use std::io::Read;
 use serde::{Deserialize, Serialize};
@@ -19,24 +18,37 @@ impl JSONCredentialsConfig {
     pub fn secret(&self) -> &str {
         &self.secret_key
     }
+}
 
-    pub fn user_credentials_from_file(&self, file_path: &str) -> Result<JSONCredentialsConfig, Error > {
+pub fn user_credentials_from_file(file_path: &str) -> Option<JSONCredentialsConfig > {
 
-        let content = match parse_file(file_path) {
-            Ok(res) => res,
-            Err(e) => return Err(e),
-        };
+    let content = match parse_file(file_path) {
+        Some(res) => res,
+        None => return None,
+    };
 
-        let credentials: JSONCredentialsConfig = serde_json::from_str(&content)
-            .expect("Unable to parse JSON from file");
+    let credentials: JSONCredentialsConfig = serde_json::from_str(&content)
+        .expect("Unable to parse JSON from file");
 
-        Ok(credentials)
-    }
+    Some(credentials)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ClusterKey {
     cluster_key: String,
+}
+
+pub fn cluster_key_from_file(file_path: &str) -> Option<ClusterKey > {
+
+    let content = match parse_file(file_path) {
+        Some(res) => res,
+        None => return None,
+    };
+
+    let cluster_key: ClusterKey = serde_json::from_str(&content)
+        .expect("Unable to parse JSON from file");
+
+    Some(cluster_key)
 }
 
 impl ClusterKey {
@@ -47,21 +59,10 @@ impl ClusterKey {
         &self.cluster_key
     }
 
-    pub fn cluster_key_from_file(&self, file_path: &str) -> Result<ClusterKey, Error > {
-        let content = match parse_file(file_path) {
-            Ok(res) => res,
-            Err(e) => return Err(e),
-        };
-
-        let cluster_key: ClusterKey = serde_json::from_str(&content)
-           .expect("Unable to parse JSON from file");
-
-        Ok(cluster_key)
-    }
 }
 
 
-fn parse_file(file_path: &str) -> Result<String, Error>{
+fn parse_file(file_path: &str) -> Option<String>{
 
     let mut file = File::open(file_path)
         .expect("Unable to open file");
@@ -71,5 +72,5 @@ fn parse_file(file_path: &str) -> Result<String, Error>{
     file.read_to_string(&mut contents)
         .expect("Unable to read file");
 
-    Ok(contents)
+    Some(contents)
 }

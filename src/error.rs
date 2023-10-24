@@ -115,11 +115,19 @@ impl fmt::Display for ErrorType {
     }
 }
 
+
 #[repr(i32)]
 #[derive(Debug)]
 pub enum ErrorType {
     // We need this as a catch-all for (future) error codes that we don't know how to handle.
-    ErrUnknownError = -42,
+    #[doc = "! Catch-all for (future) error codes."]
+    ErrUnknownError = 42,
+    #[doc = "! Cluster key not found."]
+    ErrClusterKeyNotFound = 43,
+    #[doc = "! User credentials not found."]
+    ErrUserCredentialsNotFound = 44,
+    //
+    //
     #[doc = "! Success."]
     Success = qdb_error_t_qdb_e_ok,
     #[doc = "! Success. A new entry has been created."]
@@ -311,7 +319,10 @@ impl ErrorType {
             qdb_error_t_qdb_e_network_inbuf_too_small => ErrorType::ErrNetworkInbufTooSmall,
             qdb_error_t_qdb_e_network_error => ErrorType::ErrNetworkError,
             qdb_error_t_qdb_e_data_corruption => ErrorType::ErrDataCorruption,
-            // Catch all for unknown or future error codes
+
+            // Custom codes and catch all for unknown or future error codes
+            43 => ErrorType::ErrClusterKeyNotFound,
+            44 => ErrorType::ErrUserCredentialsNotFound,
             _ => ErrorType::ErrUnknownError,
         }
     }
