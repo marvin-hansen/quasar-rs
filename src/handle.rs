@@ -141,13 +141,6 @@ pub fn must_setup_secured_handle(
 )
     -> Result<HandleType, ErrorType>
 {
-    let err = setup_secured_handle(
-        cluster_uri,
-        cluster_key_path,
-        user_credential_path,
-        timeout
-    );
-
     return match setup_secured_handle(cluster_uri, cluster_key_path, user_credential_path, timeout){
         Ok(h) => Ok(h),
         Err(e) => panic!("Unable to setup handle: {:?}", e)
