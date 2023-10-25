@@ -126,13 +126,13 @@ pub fn setup_secured_handle(
     }
 }
 
-/// MustSetupSecuredHandle : Setup a secured handle, panic on error
-///	The handle is already opened with tcp protocol
-///	The handle is already secured with the cluster public key and the user credential files provided
-///	(Note: the filenames are needed, not the content of the files)
-///	The handle is already connected with the clusterURI string
-///
-///    Panic on error
+    /// MustSetupSecuredHandle : Setup a secured handle, panic on error
+    ///	The handle is already opened with tcp protocol
+    ///	The handle is already secured with the cluster public key and the user credential files provided
+    ///	(Note: the filenames are needed, not the content of the files)
+    ///	The handle is already connected with the clusterURI string
+    ///
+    ///    Panic on error
 pub fn must_setup_secured_handle(
     cluster_uri: &str,
     cluster_key_path: &str,

@@ -13,3 +13,4 @@ pub mod handle_const;
 mod utils;
 pub mod handler_credentials;
 mod utils_ptr;
+pub mod entry;
