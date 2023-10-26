@@ -1,0 +1,162 @@
+$ cargo build -v
+       Fresh unicode-ident v1.0.12
+       Fresh glob v0.3.1
+       Fresh memchr v2.6.4
+       Fresh cfg-if v1.0.0
+       Fresh proc-macro2 v1.0.69
+       Fresh bitflags v2.4.1
+       Fresh regex-syntax v0.8.2
+       Fresh minimal-lexical v0.2.1
+       Fresh quote v1.0.33
+       Fresh regex-automata v0.4.3
+       Fresh nom v7.1.3
+       Fresh libloading v0.7.4
+       Fresh home v0.5.5
+       Fresh syn v2.0.38
+       Fresh errno v0.3.5
+       Fresh either v1.9.0
+       Fresh cexpr v0.6.0
+       Fresh regex v1.10.2
+       Fresh clang-sys v1.6.1
+       Fresh rustix v0.38.19
+       Fresh prettyplease v0.2.15
+       Fresh lazycell v1.3.0
+       Fresh lazy_static v1.4.0
+       Fresh which v4.4.2
+       Fresh rustc-hash v1.1.0
+       Fresh log v0.4.20
+       Fresh shlex v1.2.0
+       Fresh peeking_take_while v0.1.2
+       Fresh libc v0.2.149
+       Fresh bindgen v0.68.1
+       Fresh serde_derive v1.0.189
+       Fresh az v1.2.1
+       Fresh gmp-mpfr-sys v1.6.1
+       Fresh ryu v1.0.15
+       Fresh serde v1.0.189
+       Dirty quasar-rs v0.1.0 (/Users/marvin/CLionProjects/quasar-rs): the file `build.rs` has changed (1698311147.246295868s, 2m 48s after last build at 1698310979.628671912s)
+   Compiling quasar-rs v0.1.0 (/Users/marvin/CLionProjects/quasar-rs)
+       Fresh itoa v1.0.9
+       Fresh serde_json v1.0.107
+       Fresh rug v1.22.0
+
+     Running
+      `/Users/marvin/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc
+     --crate-name build_script_build
+     --edition=2021 build.rs
+     --error-format=json
+     --json=diagnostic-rendered-ansi,artifacts,future-incompat
+     --diagnostic-width=52
+     --crate-type bin
+     --emit=dep-info,link
+     -C embed-bitcode=no
+     -C metadata=6404cc8b830bf80e
+     -C extra-filename=-6404cc8b830bf80e
+     --out-dir /Users/marvin/CLionProjects/quasar-rs/target/debug/build/quasar-rs-6404cc8b830bf80e
+     -C incremental=/Users/marvin/CLionProjects/quasar-rs/target/debug/incremental
+     -L dependency=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps
+     --extern bindgen=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps/libbindgen-450f904e27f4c231.rlib
+     -C link-arg=-undefined
+     -C link-arg=dynamic_lookup`
+
+    Building [========================>  ] 63/66
+     Running `/Users/marvin/CLionProjects/quasar-rs/target/debug/build/quasar-rs-6404cc8b830bf80e/build-script-build`
+     Running `/Users/marvin/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc
+     --crate-name quasar_rs
+     --edition=2021 src/lib.rs
+     --error-format=json
+     --json=diagnostic-rendered-ansi,artifacts,future-incompat
+     --diagnostic-width=52
+     --crate-type lib
+     --emit=dep-info,metadata,link
+     -C embed-bitcode=no -C debuginfo=2
+     -C split-debuginfo=unpacked
+     -C metadata=f970816d4dc215e5
+     -C extra-filename=-f970816d4dc215e5 -
+     -out-dir /Users/marvin/CLionProjects/quasar-rs/target/debug/deps
+     -C incremental=/Users/marvin/CLionProjects/quasar-rs/target/debug/incremental
+     -L dependency=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps
+     --extern rug=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps/librug-4556728cffca4e53.rmeta
+     --extern serde=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps/libserde-b8d71abf9770bacd.rmeta
+     --extern serde_json=/Users/marvin/CLionProjects/quasar-rs/target/debug/deps/libserde_json-e0e656daf44ed4d8.rmeta
+     -C link-arg=-undefined
+     -C link-arg=dynamic_lookup
+     -L native=/Users/marvin/CLionProjects/quasar-rs/qdb/lib
+     -l dylib=c++
+     -l dylib=c++abi
+     -l dylib=libqdb_api
+     -L native=/Users/marvin/CLionProjects/quasar-rs/target/debug/build/gmp-mpfr-sys-08843e031be01b15/out/lib`
+warning: value assigned to `cache` is never read
+  --> src/utils.rs:25:13
+   |
+25 |     let mut cache: u32 = 0;
+   |             ^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` on by default
+
+warning: value assigned to `cache` is never read
+  --> src/utils.rs:45:9
+   |
+45 |         cache >>= letterIdxBits;
+   |         ^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: unnecessary `unsafe` block
+  --> src/handle.rs:38:5
+   |
+38 |     unsafe {
+   |     ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` on by default
+
+warning: unnecessary `unsafe` block
+  --> src/handle.rs:85:5
+   |
+85 |     unsafe {
+   |     ^^^^^^ unnecessary `unsafe` block
+
+warning: constant `letterBytes` is never used
+  --> src/utils.rs:10:7
+   |
+10 | const letterBytes: &[u8] = "abcdefghijklmnop...
+   |       ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `letterIdxBits` is never used
+  --> src/utils.rs:11:7
+   |
+11 | const letterIdxBits: u32 = 6;
+   |       ^^^^^^^^^^^^^
+
+warning: constant `letterIdxMask` is never used
+  --> src/utils.rs:13:7
+   |
+13 | const letterIdxMask: u32 = 1 << letterIdxBit...
+   |       ^^^^^^^^^^^^^
+
+warning: constant `letterIdxMax` is never used
+  --> src/utils.rs:15:7
+   |
+15 | const letterIdxMax: u32 = 63 / letterIdxBits...
+   |       ^^^^^^^^^^^^
+
+warning: function `generate_alias` is never used
+  --> src/utils.rs:17:4
+   |
+17 | fn generate_alias<const n: u32>() -> String {
+   |    ^^^^^^^^^^^^^^
+
+warning: function `cstr_to_str` is never used
+  --> src/utils.rs:64:15
+   |
+64 | pub unsafe fn cstr_to_str(c_buf: *const i8) ...
+   |               ^^^^^^^^^^^
+
+warning: `quasar-rs` (lib) generated 10 warnings
+
+
+    Finished dev [unoptimized + debuginfo] target(s) in 19.11s
+

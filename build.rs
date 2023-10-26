@@ -2,11 +2,10 @@ use std::env;
 use std::path::{Path, PathBuf};
 
 fn main() {
-
+    // Tried this to no avail. https://github.com/rust-lang/cargo/issues/4421
     // install_name_tool -change @rpath/libqdb_api.dylib "/Users/marvin/CLionProjects/quasar-rs/qdb/lib/libqdb_api.dylib" target/debug/libqdb_api.dylib
 
-    // Set LLVM config & libclang path
-    // https://rust-lang.github.io/rust-bindgen/requirements.html#clang
+    // Set LLVM config & libclang path https://rust-lang.github.io/rust-bindgen/requirements.html#clang
     let key = "LLVM_CONFIG_PATH";
     env::set_var(key, env::var(key).unwrap_or("/opt/homebrew/opt/llvm/bin/llvm-config".to_string()));
 
@@ -42,12 +41,8 @@ fn main() {
         .expect("Unable to generate bindings");
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
-    // The resulting bindings will be written to $OUT_DIR/bindings.rs where $OUT_DIR is chosen by cargo and is something like
-    // ./target/debug/build/quasar-rs..../out/.
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
-
 }
