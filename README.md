@@ -1,5 +1,11 @@
-# quasar.rs
-Rust binding for quasar.ai DB
+# quasar.rs Rust binding for quasar.ai DB
+
+Requires the quasar C API & libraries. 
+
+## Status: Broken
+
+Reason: On Macos: dylib not found during linker stage
+
 
 exporting these doesn't work at all; not sure why.
 
