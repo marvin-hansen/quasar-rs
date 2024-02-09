@@ -1,0 +1,22 @@
+  make: *** [all] Error 2
+  thread 'main' panicked at /Users/marvin/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gmp-mpfr-sys-1.6.1/build.rs:1210:13:
+  Program failed with code 2: cd "/Users/marvin/RustroverProjects/quasar-rs/target/x86_64-apple-darwin/debug/build/gmp-mpfr-sys-9b7e95fe01b42422/out/build/gmp-build" && "make" "-j" "16"
+  stack backtrace:
+     0: rust_begin_unwind
+               at /rustc/a28077b28a02b92985b3a3faecf92813155f1ea1/library/std/src/panicking.rs:597:5
+     1: core::panicking::panic_fmt
+               at /rustc/a28077b28a02b92985b3a3faecf92813155f1ea1/library/core/src/panicking.rs:72:14
+     2: build_script_build::execute
+               at ./build.rs:1210:13
+     3: build_script_build::make_and_check
+               at ./build.rs:1165:5
+     4: build_script_build::build_gmp
+               at ./build.rs:649:5
+     5: build_script_build::compile_libs
+               at ./build.rs:305:9
+     6: build_script_build::main
+               at ./build.rs:183:9
+     7: core::ops::function::FnOnce::call_once
+               at /rustc/a28077b28a02b92985b3a3faecf92813155f1ea1/library/core/src/ops/function.rs:250:5
+  note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Marvins-MacBook-Pro-2:quasar-rs marvin$
