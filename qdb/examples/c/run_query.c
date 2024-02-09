@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  */
 
 #ifndef __STDC_FORMAT_MACROS
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #    define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
@@ -104,6 +105,53 @@ qdb_error_t execute(const char * url, const char * query)
 
             case qdb_query_result_string:
                 printf("%15s", cell->payload.string.content);
+                break;
+
+            case qdb_query_result_array_double:
+                printf("[%zu]=", cell->payload.double_array.array_size);
+                for (size_t i = 0; i < cell->payload.double_array.array_size; ++i)
+                {
+                    printf("%f,", cell->payload.double_array.content[i]);
+                }
+                break;
+
+            case qdb_query_result_array_int64:
+                printf("[%zu]=", cell->payload.int64_array.array_size);
+                for (size_t i = 0; i < cell->payload.int64_array.array_size; ++i)
+                {
+                    printf("%" PRId64 ",", cell->payload.int64_array.content[i]);
+                }
+                break;
+
+            case qdb_query_result_array_timestamp:
+                printf("[%zu]=", cell->payload.timestamp_array.array_size);
+                for (size_t i = 0; i < cell->payload.timestamp_array.array_size; ++i)
+                {
+#if defined(macintosh) || defined(Macintosh) || defined(__APPLE__) || defined(__MACH__)
+#    define PRItime "ld"
+#else
+#    define PRItime PRId64
+#endif
+                    printf("%11" PRItime ".%09" PRItime ",", cell->payload.timestamp_array.content[i].tv_sec,
+                        cell->payload.timestamp_array.content[i].tv_nsec);
+#undef PRItime
+                }
+                break;
+
+            case qdb_query_result_array_string:
+                printf("[%zu]=", cell->payload.string_array.array_size);
+                for (size_t i = 0; i < cell->payload.string_array.array_size; ++i)
+                {
+                    printf("%s,", cell->payload.string_array.content[i].data);
+                }
+                break;
+
+            case qdb_query_result_array_blob:
+                printf("[%zu]=", cell->payload.blob_array.array_size);
+                for (size_t i = 0; i < cell->payload.blob_array.array_size; ++i)
+                {
+                    printf("%s,", (const char *)cell->payload.blob_array.content[i].content);
+                }
                 break;
             }
 

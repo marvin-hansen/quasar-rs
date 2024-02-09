@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,7 +276,7 @@ extern "C"
     //! \ingroup option
     //! \brief An enumeration of compression parameters
     //! \see \ref qdb_option_set_compression
-    typedef enum qdb_compression_t
+    typedef enum qdb_compression_t // NOLINT(modernize-use-using)
     {
         //! No compression
         qdb_comp_none = 0,
@@ -309,7 +309,7 @@ extern "C"
     //! \ingroup option
     //! \brief An enumeration of encryption parameters
     //! \see \ref qdb_option_set_encryption
-    typedef enum qdb_encryption_t
+    typedef enum qdb_encryption_t // NOLINT(modernize-use-using)
     {
         qdb_crypt_none = 0,       //!< No encryption.
         qdb_crypt_aes_gcm_256 = 1 //!< AEC-GCM 256-bit encryption.
@@ -402,6 +402,30 @@ extern "C"
     QDB_API_LINKAGE qdb_error_t
     qdb_option_cluster_disable_auto_compaction(qdb_handle_t handle);
 
+    //! \ingroup option
+    //! \brief Sets the maximum length of query strings
+    //!
+    //! \param handle The handle on which to set the maximum query length
+    //!
+    //! \param max_query_length The maximum length of query strings
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_option_set_query_max_length(qdb_handle_t handle,
+                                    qdb_size_t max_query_length);
+
+    //! \ingroup option
+    //! \brief Gets the maximum length of query strings
+    //!
+    //! \param handle The handle on which to get the maximum query length
+    //!
+    //! \param[out] max_query_length A pointer to the maximum length of query
+    //! strings
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_option_get_query_max_length(qdb_handle_t handle,
+                                    qdb_size_t * max_query_length);
 
     //! EXPERIMENTAL. Use at your own risk!
     QDB_API_LINKAGE qdb_error_t
@@ -409,11 +433,18 @@ extern "C"
 
     //! EXPERIMENTAL. Use at your own risk!
     QDB_API_LINKAGE qdb_error_t
-    qdb_option_cluster_disable_async_pipelines(qdb_handle_t handle);
+    qdb_option_set_client_soft_memory_limit(qdb_handle_t handle,
+                                            qdb_uint_t limit);
 
     //! EXPERIMENTAL. Use at your own risk!
     QDB_API_LINKAGE qdb_error_t
-    qdb_option_cluster_enable_async_pipelines(qdb_handle_t handle);
+    qdb_option_client_get_memory_info(qdb_handle_t handle,
+                                      const char ** content,
+                                      qdb_size_t * content_length);
+
+    //! EXPERIMENTAL. Use at your own risk!
+    QDB_API_LINKAGE qdb_error_t
+    qdb_option_client_tidy_memory(qdb_handle_t handle);
 
 #ifdef __cplusplus
 } /* extern "C" */

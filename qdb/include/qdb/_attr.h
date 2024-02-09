@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,22 @@
 
 #ifndef QDB_API_LINKAGE
 #    define QDB_API_LINKAGE
+#endif
+
+#ifndef __has_feature
+#    define __has_feature(__x) 0
+#endif
+
+#if !(__has_feature(cxx_noexcept))
+#    define QDB_HAS_NO_NOEXCEPT
+#endif
+
+#ifndef QDB_NOEXCEPT
+#    ifndef QDB_HAS_NO_NOEXCEPT
+#        define QDB_NOEXCEPT noexcept
+#    else
+#        define QDB_NOEXCEPT throw()
+#    endif
 #endif
 
 #endif /* QDB_API_ATTR_H */

@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ extern "C"
     //! \ingroup iterator
     //! \struct qdb_const_iterator_t
     //! \brief A read-only iterator on quasardb entries.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The handle created with qdb_open
         qdb_handle_t handle;

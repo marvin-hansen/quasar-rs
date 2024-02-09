@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,8 @@ extern "C"
     //! \typedef qdb_direct_handle_t
     //! \brief An opaque handle to internal API-allocated structures needed for
     //! maintaining a direct connection to a cluster.
-    typedef struct qdb_direct_handle_internal * qdb_direct_handle_t;
+    typedef // NOLINT(modernize-use-using)
+        struct qdb_direct_handle_internal * qdb_direct_handle_t;
 
     //! \ingroup direct
     //! \brief Opens a direct connection to a node for use with the direct API.
@@ -129,8 +130,7 @@ extern "C"
     //!
     //! \param content_length The length of the buffer, in bytes
     //!
-    //! \param expiry_time An optional absolute expiry time expressed in UTC
-    //! UNIX epoch.
+    //! \param expiry_time This parameter is currently ignored.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     QDB_API_LINKAGE qdb_error_t qdb_direct_blob_put(qdb_direct_handle_t handle,
@@ -164,8 +164,7 @@ extern "C"
     //!
     //! \param content_length The length of the buffer, in bytes
     //!
-    //! \param expiry_time An optional absolute expiry time expressed in UTC
-    //! UNIX epoch.
+    //! \param expiry_time This parameter is currently ignored.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     QDB_API_LINKAGE qdb_error_t
@@ -223,8 +222,7 @@ extern "C"
     //!
     //! \param integer The value to which the integer must be set.
     //!
-    //! \param expiry_time An optional absolute expiry time expressed in UTC
-    //! UNIX epoch.
+    //! \param expiry_time This parameter is currently ignored.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //! \see \ref qdb_int_update, \ref qdb_int_get, \ref qdb_int_add
@@ -256,8 +254,7 @@ extern "C"
     //!
     //! \param integer The value to which the integer must be set.
     //!
-    //! \param expiry_time An optional absolute expiry time expressed in UTC
-    //! UNIX epoch.
+    //! \param expiry_time This parameter is currently ignored.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //! \see \ref qdb_int_put, \ref qdb_int_get, \ref qdb_int_add
@@ -366,6 +363,160 @@ extern "C"
                           qdb_int_t max_count,
                           const char *** results,
                           size_t * result_count);
+
+    //! \ingroup backup
+    //! \brief Backup modification flags.
+    typedef enum qdb_backup_flags_t // NOLINT(modernize-use-using)
+    {
+        qdb_backup_checkpoint = 1, //!< Make checkpoint backup.
+        qdb_backup_checkpoint_trim =
+            2, //!< Control number of checkpoints in backup.
+        qdb_backup_full =
+            4, //!< Make full backup. Incompatible with checkpoint flags.
+    } qdb_backup_flags_t;
+
+    //! \ingroup backup
+    //! \brief Backup additional parameters.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The backup modification flags. Combination of \ref
+        //! qdb_backup_flags_t elements.
+        qdb_uint_t flags;
+        //! Maximal number of checkpoints stored in backup worked with \ref
+        //! qdb_backup_checkpoint_trim flag.
+        qdb_size_t increments_limit;
+    } qdb_backup_options_t;
+
+    //! \ingroup backup
+    //! \brief Run backup process on the node.
+    //!
+    //! This function bypasses the clustering mechanism and accesses the node
+    //! local storage. Entries in the local node storage are not accessible via
+    //! the regular API and vice versa.
+    //!
+    //! Triggers a backup of the node into the specified directory.
+    //! The function returns right after the backup is started and will not wait
+    //! for its completion. Only one backup per node can be running at any point
+    //! in time. Returns an error if a backup is already in progress.
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \param output_directory A pointer to a null-terminated UTF-8 string
+    //! representing the target backup path on the node size. Can't be null or
+    //! empty.
+    //!
+    //! \param options Additional backup parameters (optional).
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_direct_node_backup(qdb_direct_handle_t handle,
+                           const char * output_directory,
+                           const qdb_backup_options_t * options);
+
+    //! \ingroup backup
+    //! \brief Get the backup progress.
+    //!
+    //! This function returns last backup progress.
+    //! \see \ref qdb_direct_node_backup
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \param completed An actually backupped part in Bytes.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_direct_node_get_backup_progress(qdb_direct_handle_t handle,
+                                        qdb_uint_t * completed);
+
+    //! \ingroup backup
+    //! \brief Abort the running backup.
+    //!
+    //! This function aborts the last active backup.
+    //! \see \ref qdb_direct_node_backup
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_direct_node_abort_backup(qdb_direct_handle_t handle);
+
+    //! \ingroup backup
+    //! \brief Backup S3 additional parameters.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! Number of threads used for backup.
+        //! If 0, then one thread is used.
+        qdb_uint_t thread_count;
+
+        //! Flush memory tables before backup operation.
+        //! Default 0 (false).
+        int flush_memtable;
+    } qdb_backup_s3_options_t;
+
+    //! \ingroup backup
+    //! \brief Run backup process to S3 on the node.
+    //!
+    //! This function bypasses the clustering mechanism and accesses the node
+    //! local storage. Entries in the local node storage are not accessible via
+    //! the regular API and vice versa.
+    //!
+    //! Triggers a backup of the node into the S3 cloud.
+    //! The function returns right after the backup is started and will not wait
+    //! for its completion. Only one backup per node can be running at any point
+    //! in time. Returns an error if a backup is already in progress.
+    //! \see \ref qdb_direct_node_get_s3_backup_progress
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \param bucket A pointer to a null-terminated UTF-8 string
+    //! representing the bucket name.
+    //!
+    //! \param path_prefix A pointer to a null-terminated UTF-8 string
+    //! representing the object path prefix.
+    //!
+    //! \param region A pointer to a null-terminated UTF-8 string
+    //! representing the region (optional).
+    //!
+    //! \param options Additional backup parameters (optional).
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_direct_node_s3_backup(qdb_direct_handle_t handle,
+                              const char * bucket,
+                              const char * path_prefix,
+                              const char * region,
+                              const qdb_backup_s3_options_t * options);
+
+    //! \ingroup backup
+    //! \brief Backup progress details.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! Total number of files to checkpoint
+        qdb_uint_t total;
+
+        //! Number of files completed, guaranteed to be <= total
+        qdb_uint_t completed;
+    } qdb_backup_progress_t;
+
+    //! \ingroup backup
+    //! \brief Get the S3 backup progress.
+    //!
+    //! This function returns last backup progress.
+    //! \see \ref qdb_direct_node_s3_backup
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \param progress A backup progress details.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_direct_node_get_s3_backup_progress(qdb_direct_handle_t handle,
+                                           qdb_backup_progress_t * progress);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -64,7 +64,7 @@ int secure_db_connect(qdb_handle_t * h)
     return EXIT_SUCCESS;
 }
 
-int main()
+int main(void)
 {
     qdb_handle_t handle = NULL;
 

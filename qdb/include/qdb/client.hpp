@@ -2,7 +2,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,17 @@
 #include "batch.h"
 #include "blob.h"
 #include "client.h"
+#include "double.h"
 #include "error.hpp"
 #include "integer.h"
 #include "iterator.hpp"
 #include "node.h"
 #include "option.h"
 #include "prefix.h"
+#include "string.h"
 #include "suffix.h"
 #include "tag.h"
+#include "timestamp.h"
 #include <algorithm>
 #include <cstring>
 #include <functional>
@@ -55,6 +58,7 @@ static const qdb_time_t preserve_expiration = qdb_preserve_expiration;
 
 inline std::string make_error_string(qdb_error_t error)
 {
+    // NOLINTNEXTLINE(modernize-return-braced-init-list)
     return std::string(qdb_error(error));
 }
 
@@ -63,8 +67,8 @@ struct remote_node
 public:
     remote_node() {}
 
-    remote_node(std::string address, unsigned short port)
-        : _address(address), _port(port), _error(qdb_e_ok)
+    remote_node(const std::string & address, unsigned short port)
+        : _address(address), _port(port)
     {
     }
 
@@ -72,33 +76,38 @@ public:
     {
         return _address;
     }
-    const std::string & address() const
+
+    const std::string & address() const // NOLINT(modernize-use-nodiscard)
     {
         return _address;
     }
 
-    unsigned short & port()
-    {
-        return _port;
-    }
-    unsigned short port() const
+    // NOLINTNEXTLINE(google-runtime-int)
+    unsigned short & port() // NOLINT(modernize-use-nodiscard)
     {
         return _port;
     }
 
-    qdb_error_t & error()
+    // NOLINTNEXTLINE(google-runtime-int)
+    unsigned short port() const // NOLINT(modernize-use-nodiscard)
+    {
+        return _port;
+    }
+
+    qdb_error_t & error() // NOLINT(modernize-use-nodiscard)
     {
         return _error;
     }
-    qdb_error_t error() const
+
+    qdb_error_t error() const // NOLINT(modernize-use-nodiscard)
     {
         return _error;
     }
 
 private:
     std::string _address;
-    unsigned short _port;
-    qdb_error_t _error;
+    unsigned short _port{0}; // NOLINT(google-runtime-int)
+    qdb_error_t _error{qdb_e_ok};
 };
 
 class handle
@@ -109,7 +118,12 @@ public:
     // we don't want to encourage exceptions usage in our C++ API and therefore
     // provide the class with a separate
     // connect() method
-    handle() : _handle(NULL), _timeout(60 * 1000), _encrypt(qdb_crypt_none) {}
+    handle()
+        : _handle(NULL), // NOLINT(modernize-use-nullptr)
+          _timeout(60 * 1000), _encrypt(qdb_crypt_none)
+    {
+    }
+
     ~handle()
     {
         close();
@@ -117,13 +131,15 @@ public:
 
 #ifdef QDBAPI_RVALUE_SUPPORT
 public:
-    handle(handle && h) : _handle(0), _timeout(h._timeout)
+    handle(handle && h) QDB_NOEXCEPT
+        : _handle(NULL), // NOLINT(modernize-use-nullptr)
+          _timeout(h._timeout)
     {
         using std::swap;
         swap(h._handle, _handle);
     }
 
-    handle & operator=(handle && h)
+    handle & operator=(handle && h) QDB_NOEXCEPT
     {
         _timeout = h._timeout;
         using std::swap;
@@ -135,7 +151,11 @@ public:
 private:
     // prevent copy, we might get a dangling handle otherwise
     // use a pointer or a smart pointer instead of copying objects around
-    handle(const handle & /*unused*/) : _handle(NULL), _timeout(60 * 1000) {}
+    handle(const handle & /*unused*/)
+        : _handle(NULL), // NOLINT(modernize-use-nullptr)
+          _timeout(60 * 1000)
+    {
+    }
 
 public:
     //! \ingroup client
@@ -161,6 +181,7 @@ public:
     //! cluster.
     const_iterator end()
     {
+        // NOLINTNEXTLINE(modernize-return-braced-init-list)
         return const_iterator(this->_handle,
                               detail::const_iterator_impl::init_end());
     }
@@ -181,6 +202,7 @@ public:
     //! cluster.
     const_reverse_iterator rend()
     {
+        // NOLINTNEXTLINE(modernize-return-braced-init-list)
         return const_reverse_iterator(this->_handle,
                                       detail::const_iterator_impl::init_end());
     }
@@ -199,7 +221,7 @@ public:
             // know for sure the handle
             // we pass is an unclosed handle
             qdb_close(_handle);
-            _handle = NULL;
+            _handle = NULL; // NOLINT(modernize-use-nullptr)
         }
         assert(!connected());
     }
@@ -210,26 +232,28 @@ public:
     //! \brief  Determines if the handle is connected or not.
     //!
     //! \return True if the handle is connected, false otherwise
+    // NOLINTNEXTLINE(modernize-use-nodiscard)
     bool connected() const
     {
-        return _handle != NULL;
+        return _handle != NULL; // NOLINT(modernize-use-nullptr)
     }
 
 public:
     // the user may want to access the handle, make that convenient
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator qdb_handle_t()
     {
         return _handle;
     }
 
-    operator bool() const
+    explicit operator bool() const
     {
-        return _handle != NULL;
+        return _handle != NULL; // NOLINT(modernize-use-nullptr)
     }
 
     bool operator!() const
     {
-        return _handle == NULL;
+        return _handle == NULL; // NOLINT(modernize-use-nullptr)
     }
 
 public:
@@ -480,7 +504,7 @@ public:
     //! \param alias A pointer to a null - terminated string representing the
     //! entry's alias.
     //!
-    //! \param number The value of the retrieved qdb_int_t.
+    //! \param number The value to which the number must be set.
     //!
     //! \param expiry_time The absolute expiry time of the entry, in seconds,
     //! relative to epoch
@@ -498,7 +522,7 @@ public:
     //! \param alias A pointer to a null - terminated string representing the
     //! entry's alias.
     //!
-    //! \param number The value of the retrieved qdb_int_t.
+    //! \param number The value to which the number must be set.
     //!
     //! \param expiry_time The absolute expiry time of the entry, in seconds,
     //! relative to epoch
@@ -524,9 +548,164 @@ public:
     //!
     //! \return A qdb_error_t code indicating success or failure.
     qdb_error_t
-    int_add(const char * alias, qdb_int_t addend, qdb_int_t * result = NULL)
+    int_add(const char * alias,
+            qdb_int_t addend,
+            qdb_int_t * result = NULL) // NOLINT(modernize-use-nullptr)
     {
         return qdb_int_add(_handle, alias, addend, result);
+    }
+
+public:
+    // double
+    //! \ingroup client
+    //!
+    //! \brief Retrieves the value of an double. The double must already
+    //! exist.
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param number The value of the retrieved double.
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t double_get(const char * alias, double * number)
+    {
+        return qdb_double_get(_handle, alias, number);
+    }
+    //! \ingroup client
+    //!
+    //! \brief  Creates a new double. Errors if the double already exists.
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param number The value to which the number must be set.
+    //!
+    //! \param expiry_time The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t
+    double_put(const char * alias, double number, qdb_time_t expiry_time)
+    {
+        return qdb_double_put(_handle, alias, number, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief  Updates an existing double or creates one if it does not exist.
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param number The value to which the number must be set.
+    //!
+    //! \param expiry_time The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t
+    double_update(const char * alias, double number, qdb_time_t expiry_time)
+    {
+        return qdb_double_update(_handle, alias, number, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Atomically addes the value to the double. The double must
+    //! already exist.
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //!  entry's alias.
+    //!
+    //! \param addend The value that will be added to the existing double.
+    //!
+    //! \param result A pointer that will be updated to point to the new
+    //! double.
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t
+    double_add(const char * alias,
+               double addend,
+               double * result = NULL) // NOLINT(modernize-use-nullptr)
+    {
+        return qdb_double_add(_handle, alias, addend, result);
+    }
+
+public:
+    // timestamp
+    //! \ingroup client
+    //!
+    //! \brief Retrieves the value of an timestamp. The timestamp must already
+    //! exist.
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param value The value of the retrieved timestamp.
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t timestamp_get(const char * alias, qdb_timespec_t * value)
+    {
+        return qdb_timestamp_get(_handle, alias, value);
+    }
+    //! \ingroup client
+    //!
+    //! \brief  Creates a new timestamp. Errors if the timestamp already exists.
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param value The value to which the number must be set.
+    //!
+    //! \param expiry_time The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t timestamp_put(const char * alias,
+                              const qdb_timespec_t * value,
+                              qdb_time_t expiry_time)
+    {
+        return qdb_timestamp_put(_handle, alias, value, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief  Updates an existing timestamp or creates one if it does not
+    //! exist.
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //! entry's alias.
+    //!
+    //! \param value The value to which the number must be set.
+    //!
+    //! \param expiry_time The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t timestamp_update(const char * alias,
+                                 const qdb_timespec_t * value,
+                                 qdb_time_t expiry_time)
+    {
+        return qdb_timestamp_update(_handle, alias, value, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Atomically addes the value to the timestamp. The timestamp must
+    //! already exist.
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //!  entry's alias.
+    //!
+    //! \param addend The value that will be added to the existing timestamp.
+    //!
+    //! \param result A pointer that will be updated to point to the new
+    //! double.
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t timestamp_add(
+        const char * alias,
+        const qdb_timespec_t * addend,
+        qdb_timespec_t * result = NULL) // NOLINT(modernize-use-nullptr)
+    {
+        return qdb_timestamp_add(_handle, alias, addend, result);
     }
 
 public:
@@ -579,7 +758,7 @@ public:
     //! \param alias A pointer to a null-terminated string representing the
     //! entry's alias to be retrieved.
     //!
-    //! \param content A pointer to an user allocated buffer that will receive
+    //! \param content A pointer to a user-allocated buffer that will receive
     //! the entry's content.
     //!
     //! \param content_length A pointer to a qdb_size_t initialized with the
@@ -670,7 +849,7 @@ public:
     //! null pointer otherwise.
     api_buffer_ptr blob_get(const char * alias, qdb_error_t & error)
     {
-        const void * content = NULL;
+        const void * content = NULL; // NOLINT(modernize-use-nullptr)
         qdb_size_t content_length = 0;
 
         error = qdb_blob_get(_handle, alias, &content, &content_length);
@@ -698,7 +877,7 @@ public:
     //! null pointer otherwise.
     api_buffer_ptr blob_get_and_remove(const char * alias, qdb_error_t & error)
     {
-        const void * content = NULL;
+        const void * content = NULL; // NOLINT(modernize-use-nullptr)
         qdb_size_t content_length = 0;
 
         error =
@@ -735,7 +914,7 @@ public:
                                        qdb_time_t expiry_time,
                                        qdb_error_t & error)
     {
-        const void * content = NULL;
+        const void * content = NULL; // NOLINT(modernize-use-nullptr)
         qdb_size_t content_length = 0;
 
         error = qdb_blob_get_and_update(_handle,
@@ -786,7 +965,7 @@ public:
                                          qdb_time_t expiry_time,
                                          qdb_error_t & error)
     {
-        const void * content = NULL;
+        const void * content = NULL; // NOLINT(modernize-use-nullptr)
         qdb_size_t content_length = 0;
 
         error = qdb_blob_compare_and_swap(_handle,
@@ -801,6 +980,242 @@ public:
 
         // make buffer even on error
         return make_api_buffer_ptr(_handle, content, content_length);
+    }
+
+public:
+    //! \ingroup client
+    //!
+    //! \brief Retrieves an entry's content from the quasardb server.
+    //!
+    //! If the entry does not exist, the function will fail and update error to
+    //! qdb_e_alias_not_found
+    //!
+    //! The function will allocate a buffer large enough to hold the entry's
+    //! content.
+    //!
+    //! The handle must be initialized and connected (see connect).
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //! entry's alias whose content is to be retrieved.
+    //!
+    //! \param error A reference to an error that will receive the result of
+    //! the operation.
+    //!
+    //! \return  An api_buffer_ptr holding the entry content, if it exists, a
+    //! null pointer otherwise.
+    api_buffer_ptr string_get(const char * alias, qdb_error_t & error)
+    {
+        const char * content = NULL; // NOLINT(modernize-use-nullptr)
+        qdb_size_t content_length = 0;
+
+        error = qdb_string_get(_handle, alias, &content, &content_length);
+
+        return translate_result_buffer(error, content, content_length);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Adds an entry to the quasardb server. If the entry already exists
+    //! the method will fail and will return qdb_e_alias_already_exists.
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //! entry's alias to create.
+    //!
+    //! \param content A pointer to a buffer that represents the entry's
+    //! content to be added to the server.
+    //!
+    //! \param content_length The length of the entry's content, in bytes.
+    //!
+    //! \param expiry_time The absolute expiry
+    //! time of the entry, in seconds, relative to epoch
+    //!
+    //!\return A qdb_error_t code indicating success or failure.
+    qdb_error_t string_put(const char * alias,
+                           const char * content,
+                           qdb_size_t content_length,
+                           qdb_time_t expiry_time)
+    {
+        return qdb_string_put(
+            _handle, alias, content, content_length, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Updates an entry on the quasardb server.
+    //!
+    //! If the entry already exists, the content will be updated. If the entry
+    //! does not exist, it will be created. The handle must be initialized and
+    //! connected (see :func:`connect`).
+    //!
+    //! \param alias: A pointer to a null-terminated string representing the
+    //! entry's alias to update.
+    //!
+    //! \param content: A pointer to a buffer buffer that represents the entry's
+    //! content to be updated to the server.
+    //! \param content_length: The length of the entry's content, in bytes.
+    //!
+    //! \param expiry_time The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    //!
+    //! \warning This function is experimental.
+    qdb_error_t string_update(const char * alias,
+                              const char * content,
+                              qdb_size_t content_length,
+                              qdb_time_t expiry_time)
+    {
+        return qdb_string_update(
+            _handle, alias, content, content_length, expiry_time);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Atomically gets an entry from the quasardb server and removes it.
+    //! If the entry does not exist, the function will fail and update error to
+    //! qdb_e_alias_not_found.
+    //!
+    //! The function will allocate a buffer large enough to hold the entry's
+    //! content.
+    //!
+    //! The handle must be initialized and connected (see connect).
+    //!
+    //! \param alias A pointer to a null-terminated string representing the
+    //! entry's alias whose content is to be retrieved.
+    //!
+    //! \param error A reference to an error that will receive the result of
+    //! the operation.
+    //!
+    //! \return An api_buffer_ptr holding the entry content, if it exists, a
+    //! null pointer otherwise.
+    api_buffer_ptr string_get_and_remove(const char * alias,
+                                         qdb_error_t & error)
+    {
+        const char * content = NULL; // NOLINT(modernize-use-nullptr)
+        qdb_size_t content_length = 0;
+
+        error = qdb_string_get_and_remove(
+            _handle, alias, &content, &content_length);
+
+        return translate_result_buffer(error, content, content_length);
+    }
+    //! \ingroup client
+    //!
+    //! \brief Atomically gets and updates(in this order) the entry on the
+    //! quasardb server.The entry must already exist.
+    //!
+    //! The handle must be initialized and connected(see :func:`connect`).
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //!     entry's alias to update.
+    //!
+    //! \param update_content  A pointer to a buffer that represents the entry's
+    //! content to be updated to the server.
+    //!
+    //! \param update_content_length  The length of the buffer, in bytes.
+    //!
+    //! \param expiry_time  The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \param error  A reference to an error that will receive the result of
+    //! the operation.
+    //!
+    //! \return An api_buffer_ptr holding the entry content, if it exists, a
+    //! null pointer otherwise.
+    api_buffer_ptr string_get_and_update(const char * alias,
+                                         const char * update_content,
+                                         qdb_size_t update_content_length,
+                                         qdb_time_t expiry_time,
+                                         qdb_error_t & error)
+    {
+        const char * content = NULL; // NOLINT(modernize-use-nullptr)
+        qdb_size_t content_length = 0;
+
+        error = qdb_string_get_and_update(_handle,
+                                          alias,
+                                          update_content,
+                                          update_content_length,
+                                          expiry_time,
+                                          &content,
+                                          &content_length);
+
+        return translate_result_buffer(error, content, content_length);
+    }
+
+    //! \ingroup client
+    //!
+    //! \brief Atomically compares the entry with comparand and updates it to
+    //! new_value if, and only if, they match.Always return the original value
+    //! of the entry.
+    //!
+    //! The handle must be initialized and connected(see :func:`connect`).
+    //!
+    //! \param alias A pointer to a null - terminated string
+    //! representing the entry's alias to compare to.
+    //!
+    //! \param new_value A pointer to a buffer that represents the entry's
+    //! content to be updated to the server in case of match.
+    //!
+    //! \param new_value_length The length of the buffer, in bytes.
+    //!
+    //! \param comparand A pointer to a buffer that represents the entry's
+    //! content to be compared to.
+    //!
+    //! \param comparand_length The length of the buffer, in bytes.
+    //!
+    //! \param expiry_time  The absolute expiry time of the entry, in seconds,
+    //! relative to epoch
+    //!
+    //! \param error A reference to an error that will receive the result of
+    //! the operation.
+    //!
+    //! \return An api_buffer_ptr holding the entry content, if it
+    //! exists, a null pointer otherwise.
+    api_buffer_ptr string_compare_and_swap(const char * alias,
+                                           const char * new_value,
+                                           qdb_size_t new_value_length,
+                                           const char * comparand,
+                                           qdb_size_t comparand_length,
+                                           qdb_time_t expiry_time,
+                                           qdb_error_t & error)
+    {
+        const char * content = NULL; // NOLINT(modernize-use-nullptr)
+        qdb_size_t content_length = 0;
+
+        error = qdb_string_compare_and_swap(_handle,
+                                            alias,
+                                            new_value,
+                                            new_value_length,
+                                            comparand,
+                                            comparand_length,
+                                            expiry_time,
+                                            &content,
+                                            &content_length);
+
+        // make buffer even on error
+        return make_api_buffer_ptr(_handle, content, content_length);
+    }
+
+    //! \ingroup client
+    //!
+    //! \brief Removes an entry from the quasardb server if it matches
+    //! comparand. The operation is atomic. If the entry does not exist, the
+    //! function will fail and return ``qdb_e_alias_not_found``.
+    //!
+    //! The handle must be initialized and connected(see :func:`connect`).
+    //!
+    //! \param alias A pointer to a null - terminated string representing the
+    //! entry's alias to delete.
+    //!
+    //! \param comparand A pointer to a buffer that represents the entry's
+    //! content to be compared to.
+    //!
+    //! \param comparand_length The length of the buffer, in bytes.
+    //!
+    //! \return A qdb_error_t code indicating success or failure.
+    qdb_error_t string_remove_if(const char * alias,
+                                 const char * comparand,
+                                 qdb_size_t comparand_length)
+    {
+        return qdb_string_remove_if(
+            _handle, alias, comparand, comparand_length);
     }
 
 public:
@@ -932,7 +1347,7 @@ private:
     template <typename F>
     std::string node_json(const char * uri, qdb_error_t & error, F f)
     {
-        const char * content = NULL;
+        const char * content = NULL; // NOLINT(modernize-use-nullptr)
         qdb_size_t content_length = 0;
         error = f(_handle, uri, &content, &content_length);
         std::string result;
@@ -1165,11 +1580,12 @@ public:
     }
 
 private:
-    typedef qdb_error_t (*affix_get)(qdb_handle_t,
-                                     const char *,
-                                     qdb_int_t,
-                                     const char ***,
-                                     size_t *);
+    typedef qdb_error_t (*affix_get)( // NOLINT(modernize-use-using)
+        qdb_handle_t,
+        const char *,
+        qdb_int_t,
+        const char ***,
+        size_t *);
 
     struct affix_binder
     {
@@ -1354,7 +1770,7 @@ public:
 private:
     struct get_tagged_binder
     {
-        get_tagged_binder(const char * tag) : _tag(tag) {}
+        explicit get_tagged_binder(const char * tag) : _tag(tag) {}
 
         qdb_error_t operator()(qdb_handle_t handle,
                                const char *** results,
@@ -1435,7 +1851,7 @@ public:
 private:
     struct get_tags_binder
     {
-        get_tags_binder(const char * alias) : _alias(alias) {}
+        explicit get_tags_binder(const char * alias) : _alias(alias) {}
 
         qdb_error_t operator()(qdb_handle_t handle,
                                const char *** results,
@@ -1491,6 +1907,7 @@ public:
     //! \return A constant tag begin iterator
     const_tag_iterator tag_begin(const char * tag)
     {
+        // NOLINTNEXTLINE(modernize-return-braced-init-list)
         return const_tag_iterator(this->_handle, tag);
     }
 
@@ -1502,6 +1919,7 @@ public:
     //! \return A constant tag end iterator
     const_tag_iterator tag_end()
     {
+        // NOLINTNEXTLINE(modernize-return-braced-init-list)
         return const_tag_iterator(this->_handle,
                                   detail::const_tag_iterator_impl::init_end());
     }
@@ -1542,10 +1960,15 @@ public:
     //! qdb_open_tcp) and the connection established(see
     //! qdb_connect).
     //!
+    //! \param timeout_ms A timeout value, in milliseconds.
+    //!
+    //! \param pause_ms A value for pause between trimming individual entries,
+    //! in milliseconds.
+    //!
     //! \return A qdb_error_t code indicating success or failure.
-    qdb_error_t trim_all(int timeout_ms)
+    qdb_error_t trim_all(int pause_ms, int timeout_ms)
     {
-        return qdb_trim_all(_handle, timeout_ms);
+        return qdb_trim_all(_handle, pause_ms, timeout_ms);
     }
 
     //! \ingroup client
@@ -1580,7 +2003,7 @@ private:
     template <typename Function>
     std::vector<std::string> get_alias_list(qdb_error_t & error, Function f)
     {
-        const char ** results = NULL;
+        const char ** results = NULL; // NOLINT(modernize-use-nullptr)
         size_t result_count = 0;
         error = f(_handle, &results, &result_count);
 
@@ -1611,12 +2034,12 @@ private:
 private:
     qdb_handle_t _handle;
     int _timeout;
-    qdb_encryption_t _encrypt;
+    qdb_encryption_t _encrypt; // NOLINT(modernize-use-default-member-init)
     std::string _cluster_pk;
     std::string _user_id;
     std::string _user_sk;
 };
 
-typedef qdb::shared_ptr<handle>::type handle_ptr;
+typedef qdb::shared_ptr<handle>::type handle_ptr; // NOLINT(modernize-use-using)
 
 } // namespace qdb

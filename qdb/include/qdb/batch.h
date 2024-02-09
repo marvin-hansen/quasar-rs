@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,11 @@ extern "C"
     //! \brief An enumeration of possible operation type.
     //!
     //! Operations are used by batches and transactions.
-    typedef enum qdb_operation_type_t
+    typedef enum qdb_operation_type_t // NOLINT(modernize-use-using)
     {
         //! Unitialized value
         qdb_op_uninitialized = -1,
+
         //! A blob get operation
         qdb_op_blob_get = 0,
         //! A blob put operation
@@ -63,8 +64,12 @@ extern "C"
         qdb_op_blob_cas = 4,
         //! A blob get and update
         qdb_op_blob_get_and_update = 5,
+        //! A blob remove operation
+        qdb_op_blob_remove = 28,
+
         //! Tag existence test operation
         qdb_op_has_tag = 8,
+
         //! An integer put operation
         qdb_op_int_put = 9,
         //! An integer update operation
@@ -73,15 +78,55 @@ extern "C"
         qdb_op_int_get = 11,
         //! An integer increase/decrease operation
         qdb_op_int_add = 12,
+        //! An integer remove operation
+        qdb_op_int_remove = 29,
+
         //! Entry type check
         qdb_op_get_entry_type = 13,
         //! A value get operation
-        qdb_op_value_get = 14
+        qdb_op_value_get = 14,
+
+        //! A double put operation
+        qdb_op_double_put = 15,
+        //! A double update operation
+        qdb_op_double_update = 16,
+        //! A double get operation
+        qdb_op_double_get = 17,
+        //! A double increase/decrease operation
+        qdb_op_double_add = 18,
+        //! A double remove operation
+        qdb_op_double_remove = 30,
+
+        //! A string get operation
+        qdb_op_string_get = 19,
+        //! A string put operation
+        qdb_op_string_put = 20,
+        //! A string update operation
+        qdb_op_string_update = 21,
+        //! A string compare and swap operation
+        qdb_op_string_cas = 22,
+        //! A string get and update
+        qdb_op_string_get_and_update = 23,
+        //! A string remove operation
+        qdb_op_string_remove = 31,
+
+        //! A timestamp put operation
+        qdb_op_timestamp_put = 24,
+        //! A timestamp update operation
+        qdb_op_timestamp_update = 25,
+        //! A timestamp get operation
+        qdb_op_timestamp_get = 26,
+        //! A timestamp increase/decrease operation
+        qdb_op_timestamp_add = 27,
+        //! A timestamp remove operation
+        qdb_op_timestamp_remove = 32,
+        //! An entry trimming operation
+        qdb_op_trim_entry = 33,
     } qdb_operation_type_t;
 
     //! \ingroup batch
     //! \brief The required parameters for an integer operation within a batch
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The value of the integer to use.
         qdb_int_t value;
@@ -93,7 +138,7 @@ extern "C"
     //! \ingroup batch
     //! \brief The required parameters for a blob put or update operations
     //! within a batch
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! A pointer to the buffer with the data to be written.
         const void * content;
@@ -105,13 +150,49 @@ extern "C"
     } blob_put_update_t;
 
     //! \ingroup batch
+    //! \brief The required parameters for a string put or update operations
+    //! within a batch
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! A pointer to the buffer with the data to be written.
+        const char * content;
+        //! The size of the buffer pointed by content.
+        qdb_size_t content_size;
+        //! The optional expiration time. Use \ref qdb_never_expires for no
+        //! expiration.
+        qdb_time_t expiry_time;
+    } string_put_update_t;
+
+    //! \ingroup batch
+    //! \brief The required parameters for a double operation within a batch
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The value of the 64-bit floating-point number to use.
+        double value;
+        //! The optional expiration time. Use \ref qdb_never_expires for no
+        //! expiration.
+        qdb_time_t expiry_time;
+    } double_put_update_t;
+
+    //! \ingroup batch
+    //! \brief The required parameters for a timestamp operation within a batch
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The value of the timestamp to use.
+        qdb_timespec_t value;
+        //! The optional expiration time. Use \ref qdb_never_expires for no
+        //! expiration.
+        qdb_time_t expiry_time;
+    } timestamp_put_update_t;
+
+    //! \ingroup batch
     //! \brief A single operation containing all parameters to execute the
     //! operation in a batch or in a transaction.
     //!
     //! You should initialize operations before usage with the \ref
     //! qdb_init_operations function.
     //!
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The type of the operation
         qdb_operation_type_t type;
@@ -124,7 +205,8 @@ extern "C"
         qdb_error_t error;
 
         //! Operation specific parameters
-        union {
+        union
+        {
             //! Tag specific operation parameters
             struct
             {
@@ -154,6 +236,28 @@ extern "C"
             int_put_update_t int_put;
             //! Integer update specific operation parameters
             int_put_update_t int_update;
+
+            //! Double increment/decrement specific operation parameters
+            struct
+            {
+                //! A 64-bit floating-point representing the result of the
+                //! operation
+                double result;
+                //! The value to add or subtract to the entry
+                double addend;
+            } double_add;
+
+            //! Double get specific operation parameters
+            struct
+            {
+                //! The result of the double get operation
+                double result;
+            } double_get;
+
+            //! Double put specific operation parameters
+            double_put_update_t double_put;
+            //! Double update specific operation parameters
+            double_put_update_t double_update;
 
             struct
             {
@@ -195,6 +299,35 @@ extern "C"
                 qdb_time_t expiry_time;
             } blob_cas;
 
+            //! String compare and swap specific operation parameters
+            struct
+            {
+                //! A pointer to the buffer containing the result of the blob
+                //! operation, if any.
+                //! This buffer is API-allocated and will be freed by a call to
+                //! \ref qdb_release
+                const char * original_content;
+                //! The size of the result buffer.
+                qdb_size_t original_content_size;
+                //! A pointer to the buffer with the data to be written.
+                const char * new_content;
+                //! The size of the buffer pointed by content.
+                qdb_size_t new_content_size;
+
+                //! A pointer to the comparand.
+                const char * comparand;
+                //! The size of the buffer pointed by comparand.
+                qdb_size_t comparand_size;
+
+                //! Optional offset for the comparand.
+                //! Leave to 0 if not needed.
+                qdb_size_t comparand_offset;
+
+                //! The optional expiration time. Use \ref qdb_never_expires for
+                //! no expiration.
+                qdb_time_t expiry_time;
+            } string_cas;
+
             //! Blob get specific operation parameters
             struct
             {
@@ -232,6 +365,67 @@ extern "C"
                 qdb_time_t expiry_time;
             } blob_get_and_update;
 
+            //! String get and update specific operation parameters
+            struct
+            {
+                //! A pointer to the buffer containing the result of the blob
+                //! operation
+                //! This buffer is API-allocated and will be freed by a call to
+                //! \ref qdb_release
+                const char * original_content;
+                //! The size of the result buffer.
+                qdb_size_t original_content_size;
+
+                //! A pointer to the buffer with the data to be written.
+                const char * new_content;
+                //! The size of the buffer pointed by content.
+                qdb_size_t new_content_size;
+
+                //! The optional expiration time. Use \ref qdb_never_expires for
+                //! no expiration.
+                qdb_time_t expiry_time;
+            } string_get_and_update;
+
+            string_put_update_t string_put;
+            string_put_update_t string_update;
+
+            //! String get specific operation parameters
+            struct
+            {
+                //! A pointer to the buffer containing the result of the string
+                //! operation
+                //! This buffer is API-allocated and will be freed by a call to
+                //! \ref qdb_release
+                const char * content;
+                //! The size of the result buffer.
+                qdb_size_t content_size;
+
+                //! Optional offset from which the content should be returned.
+                //! Leave to 0 if not needed.
+                qdb_size_t content_offset;
+            } string_get;
+
+            //! Timestamp get specific operation parameters
+            struct
+            {
+                //! The result of the double get operation
+                qdb_timespec_t result;
+            } timestamp_get;
+
+            //! Timestamp put specific operation parameters
+            timestamp_put_update_t timestamp_put;
+            //! Timestamp update specific operation parameters
+            timestamp_put_update_t timestamp_update;
+
+            //! Timestamp increment/decrement specific operation parameters
+            struct
+            {
+                //! A timestamp representing the result of the operation
+                qdb_timespec_t result;
+                //! The value to add or subtract to the entry
+                qdb_timespec_t addend;
+            } timestamp_add;
+
             //! Value get specific operation parameters
             struct
             {
@@ -249,7 +443,23 @@ extern "C"
                 //! The result of the get operation when the returned type is
                 //! integer
                 qdb_int_t int_result;
+
+                //! The result of the get operation when the returned type is
+                //! double
+                double double_result;
+
+                //! The result of the get operation when the returned type is
+                //! timestap
+                qdb_timespec_t timestamp_result;
             } value_get;
+
+            //! Trim entry specific operation parameters
+            struct
+            {
+                //! The result of the trimming operation - number of bytes
+                //! trimmed
+                qdb_uint_t bytes_trimmed;
+            } trim_entry;
         };
     } qdb_operation_t;
 
@@ -262,8 +472,7 @@ extern "C"
     //! are properly initialized to their default values.
     //!
     //! After this function has been called, the user must then set the required
-    //! parameter for each
-    //! operation.
+    //! parameter for each operation.
     //!
     //! \param operations A pointer to an array of operations
     //!
@@ -273,6 +482,48 @@ extern "C"
     //! \see \ref qdb_operation_t
     QDB_API_LINKAGE qdb_error_t
     qdb_init_operations(qdb_operation_t * operations, size_t operation_count);
+
+    //! \ingroup batch
+    //! \brief Coalesces an array of \ref qdb_operation_t
+    //!
+    //! Use this function to minimize operations to a given entry by omiting
+    //! redundant operations, combining multiple write operations, and resolving
+    //! known read operations.
+    //!
+    //! After this function has been called, operations in the input array that
+    //! were resolved locally will have an error code indicating success. The
+    //! remaining input operations will have qdb_e_skipped as error code, and
+    //! their effects will be subsumed by operations in the output array of
+    //! coalesced operations. All operations are assumed to succeed, if a
+    //! coalesced operation fails locally resolved operations on the same entry
+    //! are considered invalid.
+    //!
+    //! This function allocates memory for the array of coalesced operations,
+    //! call qdb_release on the coalesced_operations array to release memory.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param operations A pointer to a correctly constructed array of
+    //! operations
+    //!
+    //! \param operation_count The number of elements in the array of operations
+    //!
+    //! \param coalesced_operations A pointer to the array of coalesced
+    //! operations
+    //!
+    //! \param coalesced_operation_count A pointer to the number of elements in
+    //! the array of coalesced operations
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \see \ref qdb_operation_t, \ref qdb_run_batch, \ref qdb_release
+    QDB_API_LINKAGE qdb_error_t
+    qdb_coalesce_operations(qdb_handle_t handle,
+                            qdb_operation_t * operations,
+                            size_t operation_count,
+                            qdb_operation_t ** coalesced_operations,
+                            size_t * coalesced_operation_count);
 
     //! \ingroup batch
     //! \brief Runs the operations in batch.
@@ -306,7 +557,6 @@ extern "C"
     //!
     //! \param operations A pointer to a correctly constructed array of
     //! operations
-    //!
     //!
     //! \param operation_count The number of elements in the array of operations
     //!
@@ -345,7 +595,8 @@ extern "C"
     //!
     //! \param operation_count The number of elements in the array of operations
     //!
-    //! \param failed_index A pointer to the index of the first failed operation
+    //! \param failure_index A pointer to the index of the first failed
+    //! operation
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
@@ -354,7 +605,7 @@ extern "C"
     qdb_run_transaction(qdb_handle_t handle,
                         qdb_operation_t * operations,
                         size_t operation_count,
-                        size_t * failed_index);
+                        size_t * failure_index);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ extern "C"
 
     //! \ingroup perf
     //! \brief The possible labels for a performance measurement
-    typedef enum qdb_perf_label_t
+    typedef enum qdb_perf_label_t // NOLINT(modernize-use-using)
     {
         qdb_pl_undefined = 0,
         qdb_pl_accepted = 1,
@@ -95,7 +95,7 @@ extern "C"
     //! \struct qdb_perf_measurement_t
     //! \brief A structure representing a performance measurement
     //! database.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief Label of the measurement
         qdb_perf_label_t label;
@@ -107,7 +107,7 @@ extern "C"
     //! \struct qdb_perf_profile_t
     //! \brief A structure representing a continuous list of performance
     //! measurements
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief A name for the profile
         qdb_string_t name;

@@ -8,7 +8,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "arrow_abi.h"
 #include "client.h"
-#include <math.h>
+#include <math.h> // NOLINT(modernize-deprecated-headers)
 
 #ifdef __cplusplus
 extern "C"
@@ -48,7 +49,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief A timestamped data with a double-precision floating-point value.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief Timestamp.
         qdb_timespec_t timestamp;
@@ -60,11 +61,12 @@ extern "C"
     //! \def QDB_IS_NULL_DOUBLE
     //! \brief True if and only if the \ref qdb_ts_double_point represents a
     //! null value
-#define QDB_IS_NULL_DOUBLE(pt) (isnan(pt.value))
+#define QDB_IS_NULL_DOUBLE(pt) \
+    (isnan(pt.value)) // NOLINT(bugprone-macro-parentheses)
 
     //! \ingroup ts
     //! \brief A timestamped data with a binary content.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \copydoc qdb_ts_double_point::timestamp
         qdb_timespec_t timestamp;
@@ -78,11 +80,12 @@ extern "C"
     //! \def QDB_IS_NULL_BLOB
     //! \brief True if and only if the \ref qdb_ts_blob_point represents a null
     //! value
-#define QDB_IS_NULL_BLOB(pt) (pt.content_length == 0)
+#define QDB_IS_NULL_BLOB(pt) \
+    (pt.content_length == 0) // NOLINT(bugprone-macro-parentheses)
 
     //! \ingroup ts
     //! \brief A timestamped data with a signed 64-bit integer value.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief Timestamp.
         qdb_timespec_t timestamp;
@@ -94,11 +97,12 @@ extern "C"
     //! \def QDB_IS_NULL_INT64
     //! \brief True if and only if the \ref qdb_ts_int64_point represents a null
     //! value
+// NOLINTNEXTLINE(bugprone-macro-parentheses)
 #define QDB_IS_NULL_INT64(pt) (pt.value == ((qdb_int_t)0x8000000000000000ll))
 
     //! \ingroup ts
     //! \brief A timestamped data with a signed 64-bit integer value.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief Timestamp.
         qdb_timespec_t timestamp;
@@ -110,12 +114,13 @@ extern "C"
     //! \def QDB_IS_NULL_TIMESTAMP
     //! \brief True if and only if the \ref qdb_ts_timestamp_point represents a
     //! null value
-#define QDB_IS_NULL_TIMESTAMP(pt) \
-    (pt.value.tv_sec == qdb_min_time && pt.value.tv_nsec == qdb_min_time)
+#define QDB_IS_NULL_TIMESTAMP(pt)                 \
+    ((pt.value.tv_sec == qdb_min_time) /*NOLINT*/ \
+     && (pt.value.tv_nsec == qdb_min_time) /*NOLINT*/)
 
     //! \ingroup ts
     //! \brief A timestamped data with a string content.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \copydoc qdb_ts_double_point::timestamp
         qdb_timespec_t timestamp;
@@ -129,11 +134,12 @@ extern "C"
     //! \def QDB_IS_NULL_STRING
     //! \brief True if and only if the \ref qdb_ts_string_point represents a
     //! null value
-#define QDB_IS_NULL_STRING(pt) (pt.content_length == 0)
+#define QDB_IS_NULL_STRING(pt) \
+    (pt.content_length == 0) // NOLINT(bugprone-macro-parentheses)
 
     //! \ingroup ts
     //! \brief Time interval.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! Beginning of the interval, inclusive.
         qdb_timespec_t begin;
@@ -143,7 +149,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Types of aggregations that can be computed on a time series.
-    typedef enum qdb_ts_aggregation_type_t
+    typedef enum qdb_ts_aggregation_type_t // NOLINT(modernize-use-using)
     {
         qdb_agg_first = 0, //!< The first (earliest) data point.
         qdb_agg_last = 1,  //!< The last (latest) data point.
@@ -179,7 +185,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Aggregation input and result for columns of blobs.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \copydoc qdb_ts_double_aggregation_t::type
         qdb_ts_aggregation_type_t type;
@@ -194,7 +200,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregation input and result for columns of numeric
     //! floating-point values.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The type of the aggregation to perform.
         qdb_ts_aggregation_type_t type;
@@ -210,7 +216,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregation input and result for columns of numeric integer
     //! values.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The type of the aggregation to perform.
         qdb_ts_aggregation_type_t type;
@@ -226,7 +232,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Aggregation input and result for columns of strings.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \copydoc qdb_ts_double_aggregation_t::type
         qdb_ts_aggregation_type_t type;
@@ -239,9 +245,9 @@ extern "C"
     } qdb_ts_string_aggregation_t;
 
     //! \ingroup ts
-    //! \brief Aggregation input and result for columns of numeric integer
+    //! \brief Aggregation input and result for columns of timestamp
     //! values.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The type of the aggregation to perform.
         qdb_ts_aggregation_type_t type;
@@ -256,24 +262,26 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Types of time series columns.
-    typedef enum qdb_ts_column_type_t
+    typedef enum qdb_ts_column_type_t // NOLINT(modernize-use-using)
     {
         qdb_ts_column_uninitialized = -1,
         qdb_ts_column_double = 0, //!< Column of floating point values.
         qdb_ts_column_blob = 1,   //!< Column of binary data.
         qdb_ts_column_int64 = 2,  //!< Column of signed 64-bit integer values.
         qdb_ts_column_timestamp =
-            3,                   //!< Column of nanosecond-precision timestamps.
-        qdb_ts_column_string = 4 //!< Column of string data.
+            3, //!< Column of nanosecond-precision timestamps.
+        qdb_ts_column_string = 4, //!< Column of string data.
+        qdb_ts_column_symbol =
+            5 //!< Column of strings stored as 64-bit integers.
     } qdb_ts_column_type_t;
 
-    typedef qdb_uint_t qdb_duration_t;
+    typedef qdb_uint_t qdb_duration_t; // NOLINT(modernize-use-using)
 
     //! \ingroup ts
     //! \brief Index of a time series columns. Does not necessarily match the
     //! column position at table creation due to modifications to the table
     //! schema (by adding, renaming or removing columns).
-    typedef qdb_uint_t qdb_ts_column_index_t;
+    typedef qdb_uint_t qdb_ts_column_index_t; // NOLINT(modernize-use-using)
 
 #define qdb_d_millisecond ((qdb_duration_t)1)
 #define qdb_d_second (qdb_d_millisecond * 1000)
@@ -287,9 +295,11 @@ extern "C"
 #define qdb_d_min_shard_size qdb_d_millisecond
 #define qdb_d_max_shard_size qdb_d_max_duration
 
+#define qdb_ttl_disabled ((qdb_duration_t)0)
+
     //! \ingroup ts
     //! \brief Description of a time series column.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief A pointer to a null-terminated UTF-8 string representing the
         //! name of the column.
@@ -299,8 +309,22 @@ extern "C"
     } qdb_ts_column_info_t;
 
     //! \ingroup ts
+    //! \brief Description of a time series column, perhaps with its symtable.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! \brief A pointer to a null-terminated UTF-8 string representing the
+        //! name of the column.
+        const char * name;
+        //! The type of the column.
+        qdb_ts_column_type_t type;
+        //! \brief An optional pointer to a null-terminated UTF-8 string
+        //! representing the symbol table name of the symbol column.
+        const char * symtable;
+    } qdb_ts_column_info_ex_t;
+
+    //! \ingroup ts
     //! \brief Description of a batch column info.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief A pointer to a null-terminated UTF-8 string representing the
         //! name of the timeseries.
@@ -316,7 +340,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Description of a batch column that will not be checked.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! \brief A pointer to a null-terminated UTF-8 string representing the
         //! name of the timeseries.
@@ -337,11 +361,14 @@ extern "C"
 
         //! \brief The number of expected elements in one insertion.
         qdb_size_t elements_count_hint;
+
+        //! \brief The symbol table name for symbol column.
+        const char * symtable;
     } qdb_ts_batch_unchecked_column_info_t;
 
     //! \ingroup ts
     //! \brief A representation of binary data
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! Pointer to data.
         const void * content;
@@ -362,7 +389,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Column sent to the server in a batch.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The column name in UTF-8 format.
         qdb_string_t name;
@@ -383,7 +410,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Schema of a column sent to the server in a batch.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The column type, how it's stored server-side.
         qdb_ts_column_type_t column_type;
@@ -397,7 +424,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Data of a table sent to the server in a batch.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The number of rows to send.
         qdb_size_t row_count;
@@ -420,12 +447,26 @@ extern "C"
         qdb_exp_batch_option_standard = 0,
 
         //! Operation works with the duplicated data removing.
-        qdb_exp_batch_option_unique = 1,
+        qdb_exp_batch_option_unique_drop = 1,
+
+        //! Operation works with the duplicated data updating.
+        qdb_exp_batch_option_unique_upsert = 2,
     } qdb_exp_batch_push_options_t;
 
     //! \ingroup ts
+    //! \brief String array.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! Pointer to array.
+        qdb_string_t * strings;
+
+        //! Size of array.
+        qdb_size_t count;
+    } qdb_string_array_t;
+
+    //! \ingroup ts
     //! \brief Data and metadata of a table sent to the server in a batch.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The table name in UTF-8 format.
         qdb_string_t name;
@@ -441,13 +482,13 @@ extern "C"
         //! truncated ranges.
         qdb_size_t truncate_range_count;
 
-        //! Field used for controling work with duplicated data.
+        //! Field used for controlling work with duplicated data.
         //! Except of \ref qdb_exp_batch_push_truncate mode.
         qdb_exp_batch_push_options_t options;
 
-        //! Field used by \ref qdb_exp_batch_option_unique. The column names
-        //! array for duplication check. If NULL then all columns will be
-        //! checked.
+        //! Field used by \ref qdb_exp_batch_option_unique_drop \ref
+        //! qdb_exp_batch_option_unique_upsert. The column names array for
+        //! duplication check. If NULL then all columns will be checked.
         qdb_string_t * where_duplicate;
 
         //! Size of \ref where_duplicate array.
@@ -457,10 +498,16 @@ extern "C"
     //! \ingroup ts
     //! \brief Schema of a table sent to the server in a batch. Indexed by the
     //! table and column names given in \ref qdb_exp_batch_push_table_t.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! The table shard size.
         qdb_duration_t shard_size;
+
+        //! The table TTL, if incorrect push will fail
+        //! Set it to qdb_ttl_disabled if there's no TTL
+        //! Set to qdb_d_max_duration if you don't know the value:
+        //!   with the cost of an extra remote lookup
+        qdb_duration_t ttl;
 
         //! The table columns. The column count is given by the associated \ref
         //! qdb_exp_batch_push_table_t, at data.column_count.
@@ -469,7 +516,7 @@ extern "C"
 
     //! \ingroup ts
     //! \brief Ways of pushing data to timeseries with \ref qdb_exp_batch_push.
-    typedef enum
+    typedef enum // NOLINT(modernize-use-using)
     {
         //! Standard way of pushing values, as a fully transactional operation.
         qdb_exp_batch_push_transactional = 0,
@@ -492,6 +539,71 @@ extern "C"
         //! inserted when the call returns.
         qdb_exp_batch_push_async = 3,
     } qdb_exp_batch_push_mode_t;
+
+    //! \ingroup ts
+    //! \brief Holds a column in Arrow format.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The column type.
+        //! \warning Not all Arrow types are supported.
+        //! only: DATE64, TIMESTAMP, INT64, DOUBLE, STRING, BINARY
+        struct ArrowSchema schema;
+
+        //! The column content.
+        struct ArrowArray data;
+    } qdb_arrow_column_t;
+
+    //! \ingroup ts
+    //! \brief Holds the table in Arrow format.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The \ref timestamp type.
+        //! \warning Not all Arrow types are supported.
+        //! only: DATE64, TIMESTAMP
+        struct ArrowSchema timestamp_schema;
+
+        //! The rows timestamps.
+        //! Number of rows must be same as in the \ref columns.
+        struct ArrowArray timestamp;
+
+        //! An array containing the table columns to send.
+        qdb_arrow_column_t * columns;
+
+        //! The number of columns to send.
+        //! Number of rows must be same in the all columns.
+        qdb_size_t column_count;
+    } qdb_exp_batch_push_arrow_data_t;
+
+    //! \ingroup ts
+    //! \brief Data and metadata of a table sent to the server in a batch.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The table name in UTF-8 format.
+        qdb_string_t name;
+
+        //! The table data.
+        qdb_exp_batch_push_arrow_data_t data;
+
+        //! Field used by \ref qdb_exp_batch_push_truncate. The ranges
+        //! specifying previous data to erase.
+        const qdb_ts_range_t * truncate_ranges;
+
+        //! Field used by \ref qdb_exp_batch_push_truncate. The number of
+        //! truncated ranges.
+        qdb_size_t truncate_range_count;
+
+        //! Field used for controlling work with duplicated data.
+        //! Except of \ref qdb_exp_batch_push_truncate mode.
+        qdb_exp_batch_push_options_t options;
+
+        //! Field used by \ref qdb_exp_batch_option_unique_drop \ref
+        //! qdb_exp_batch_option_unique_upsert. The column names array for
+        //! duplication check. If NULL then all columns will be checked.
+        qdb_string_t * where_duplicate;
+
+        //! Size of \ref where_duplicate array.
+        qdb_size_t where_duplicate_count;
+    } qdb_exp_batch_push_arrow_table_t;
 
 #pragma pack(pop)
 
@@ -516,9 +628,39 @@ extern "C"
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_create(qdb_handle_t handle,
                   const char * alias,
-                  qdb_uint_t shard_size_ms,
+                  qdb_duration_t shard_size_ms,
                   const qdb_ts_column_info_t * columns,
                   qdb_size_t column_count);
+
+    //! \ingroup ts
+    //! \brief Creates a time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param shard_size_ms A duration representing the time-span of a single
+    //! shard (bucket) of the time series, in milliseconds.
+    //!
+    //! \param columns An array of column descriptions that are to be
+    //! added to the time series, along with their symbol tables.
+    //!
+    //! \param column_count The number of columns to add.
+    //!
+    //! \param ttl A time to live of a single shard (bucket)
+    //! of the time series, in milliseconds.
+    //! If set to qdb_ttl_disabled then not used
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_create_ex(qdb_handle_t handle,
+                     const char * alias,
+                     qdb_duration_t shard_size_ms,
+                     const qdb_ts_column_info_ex_t * columns,
+                     qdb_size_t column_count,
+                     qdb_duration_t ttl);
 
     //! \ingroup ts
     //! \brief Appends columns to an existing time series.
@@ -535,11 +677,134 @@ extern "C"
     //! \param column_count The number of columns to append.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_insert_columns(qdb_handle_t handle,
                           const char * alias,
                           const qdb_ts_column_info_t * columns,
                           qdb_size_t column_count);
+
+    //! \ingroup ts
+    //! \brief Appends columns to an existing time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param columns An array of column descriptions that are to be
+    //! added to the time series, along with their symbol tables.
+    //!
+    //! \param column_count The number of columns to append.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_insert_columns_ex(qdb_handle_t handle,
+                             const char * alias,
+                             const qdb_ts_column_info_ex_t * columns,
+                             qdb_size_t column_count);
+
+    //! \ingroup ts
+    //! \brief Description of a time series aggregated column.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! \brief The common column information.
+        qdb_ts_column_info_ex_t info;
+        //! \brief The aggregation type of column.
+        qdb_ts_aggregation_type_t aggregation;
+        //! \brief The index of the source column.
+        qdb_ts_column_index_t index;
+    } qdb_ts_aggregated_column_info_t;
+
+    //! \ingroup ts
+    //! \brief The aggregation window type.
+    typedef enum // NOLINT(modernize-use-using)
+    {
+        qdb_window_by_duration = 0,
+        qdb_window_by_row_count = 1,
+    } qdb_aggregation_window_type_t;
+
+    //! \ingroup ts
+    //! \brief The aggregated table parameters.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! \brief The type of aggregation window.
+        qdb_aggregation_window_type_t window_type;
+        union
+        {
+            struct
+            {
+                //! \brief The duration of the windows.
+                qdb_duration_t size;
+                //! \brief The hopping duration step or advance in window.
+                qdb_duration_t hopping;
+            } duration;
+            struct
+            {
+                //! \brief The size of the window in rows count.
+                qdb_uint_t size;
+                //! \brief The hopping step or advance in window in rows count.
+                qdb_uint_t hopping;
+            } count;
+        } window_params;
+
+        //! \brief pointer to an array that contain descriptions of columns
+        //! present in the aggregated table.
+        qdb_ts_aggregated_column_info_t * columns;
+        //! \brief the number of columns in array.
+        qdb_size_t column_count;
+
+        //! \brief The number of data points to aggregate.
+        qdb_uint_t sample_size;
+        //! \brief The watermark of the windows.
+        qdb_duration_t watermark;
+    } qdb_aggregated_table_t;
+
+    //! \ingroup ts
+    //! \brief A time series metadata.
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! \brief A pointer to an array that contain descriptions of columns
+        //! present in the time series.
+        qdb_ts_column_info_ex_t * columns;
+        //! \brief The number of columns in array.
+        qdb_size_t column_count;
+        //! \brief Shard size of the time series, in ms.
+        qdb_duration_t shard_size;
+        //! \brief TTL of the time series, in ms.
+        qdb_duration_t ttl;
+        //! \brief A pointer to the aggregated table parameters if it was
+        //! created
+        qdb_aggregated_table_t * aggregated;
+    } qdb_ts_metadata_t;
+
+    //! \ingroup ts
+    //! \brief Returns a metadata information about a time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param[out] metadata A pointer to an structure that will contain
+    //! information about the time series.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \see \ref qdb_release
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_get_metadata(qdb_handle_t handle,
+                        char const * alias,
+                        qdb_ts_metadata_t ** metadata);
 
     //! \ingroup ts
     //! \brief Returns all the columns of a time series.
@@ -557,6 +822,7 @@ extern "C"
     //! number of columns.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_DEPRECATED("use qdb_ts_get_metadata")
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_list_columns(qdb_handle_t handle,
                         const char * alias,
@@ -564,7 +830,7 @@ extern "C"
                         qdb_size_t * column_count);
 
     //! \ingroup ts
-    //! \brief Returns the shard size of a time series.
+    //! \brief Returns all the columns of a time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -572,17 +838,24 @@ extern "C"
     //! \param alias A pointer to a null-terminated UTF-8 string representing
     //! the alias of the time series.
     //!
-    //! \param[out] shard_size shard size of the timeseries, in ms.
+    //! \param[out] columns A pointer to an array that will contain descriptions
+    //! of columns present in the time series, along with their symbol tables.
+    //!
+    //! \param[out] column_count A pointer to an integer that will receive the
+    //! number of columns.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
-    QDB_API_LINKAGE qdb_error_t qdb_ts_shard_size(qdb_handle_t handle,
-                                                  const char * alias,
-                                                  qdb_uint_t * shard_size);
+    QDB_DEPRECATED("use qdb_ts_get_metadata")
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_list_columns_ex(qdb_handle_t handle,
+                           const char * alias,
+                           qdb_ts_column_info_ex_t ** columns,
+                           qdb_size_t * column_count);
 
     //! \ingroup ts
     //! \brief Inserts blob points in a time series column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -598,6 +871,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_blob_insert(qdb_handle_t handle,
                        const char * alias,
@@ -632,6 +909,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_blob_insert_truncate(qdb_handle_t handle,
                                 const char * alias,
@@ -662,6 +943,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_double_insert(qdb_handle_t handle,
                          const char * alias,
@@ -696,6 +981,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_double_insert_truncate(qdb_handle_t handle,
                                   const char * alias,
@@ -726,6 +1015,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_int64_insert(qdb_handle_t handle,
                         const char * alias,
@@ -760,6 +1053,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_int64_insert_truncate(qdb_handle_t handle,
                                  const char * alias,
@@ -772,7 +1069,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Inserts string points in a time series column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -788,6 +1085,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_string_insert(qdb_handle_t handle,
                          const char * alias,
@@ -822,6 +1123,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_string_insert_truncate(qdb_handle_t handle,
                                   const char * alias,
@@ -852,6 +1157,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_timestamp_insert(qdb_handle_t handle,
                             const char * alias,
@@ -886,6 +1195,10 @@ extern "C"
     //! \param value_count The number of data points to insert.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \note The caller must ensure that all columns in the timeseries are
+    //! properly aligned (for any given timestamp, all columns have the same
+    //! number of corresponding cells).
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_timestamp_insert_truncate(qdb_handle_t handle,
                                      const char * alias,
@@ -898,7 +1211,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Retrieves blobs in the specified range of the time series column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -933,10 +1246,49 @@ extern "C"
                            qdb_size_t * point_count);
 
     //! \ingroup ts
+    //! \brief Retrieves blobs in the specified range of the time series column.
+    //!
+    //! It is an error to call this function on a nonexisting time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param column A pointer to a null-terminated UTF-8 string representing
+    //! the name of the column to work on.
+    //!
+    //! \param ranges An array of ranges (intervals) for which data
+    //! should be retrieved.
+    //!
+    //! \param range_count The number of ranges.
+    //!
+    //! \param points An array in which the data points from all given ranges
+    //! will be placed.
+    //!
+    //! \param[in,out] point_count A pointer to an integer containing the
+    //! size of the given array on entry, will receive the number of retrieved
+    //! data points.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure. Returns
+    //! \ref qdb_e_buffer_too_small when the given array is not big enough to
+    //! store all retrieved data points, in which case point_count will contain
+    //! the necessary size for a successfull call.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_blob_get_ranges_no_copy(qdb_handle_t handle,
+                                   const char * alias,
+                                   const char * column,
+                                   const qdb_ts_range_t * ranges,
+                                   qdb_size_t range_count,
+                                   qdb_ts_blob_point * points,
+                                   qdb_size_t * point_count);
+
+    //! \ingroup ts
     //! \brief Retrieves doubles in the specified range of the time series
     //! column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -971,10 +1323,50 @@ extern "C"
                              qdb_size_t * point_count);
 
     //! \ingroup ts
+    //! \brief Retrieves doubles in the specified range of the time series
+    //! column.
+    //!
+    //! It is an error to call this function on a nonexisting time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param column A pointer to a null-terminated UTF-8 string representing
+    //! the name of the column to work on.
+    //!
+    //! \param ranges An array of ranges (intervals) for which data
+    //! should be retrieved.
+    //!
+    //! \param range_count The number of ranges.
+    //!
+    //! \param points An array in which the data points from all given ranges
+    //! will be placed.
+    //!
+    //! \param[in,out] point_count A pointer to an integer containing the
+    //! size of the given array on entry, will receive the number of retrieved
+    //! data points.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure. Returns
+    //! \ref qdb_e_buffer_too_small when the given array is not big enough to
+    //! store all retrieved data points, in which case point_count will contain
+    //! the necessary size for a successfull call.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_double_get_ranges_no_copy(qdb_handle_t handle,
+                                     const char * alias,
+                                     const char * column,
+                                     const qdb_ts_range_t * ranges,
+                                     qdb_size_t range_count,
+                                     qdb_ts_double_point * points,
+                                     qdb_size_t * point_count);
+
+    //! \ingroup ts
     //! \brief Retrieves 64-bit integers in the specified range of the time
     //! series column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1009,10 +1401,50 @@ extern "C"
                             qdb_size_t * point_count);
 
     //! \ingroup ts
+    //! \brief Retrieves 64-bit integers in the specified range of the time
+    //! series column.
+    //!
+    //! It is an error to call this function on a nonexisting time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param column A pointer to a null-terminated UTF-8 string representing
+    //! the name of the column to work on.
+    //!
+    //! \param ranges An array of ranges (intervals) for which data
+    //! should be retrieved.
+    //!
+    //! \param range_count The number of ranges.
+    //!
+    //! \param points An array in which the data points from all given ranges
+    //! will be placed.
+    //!
+    //! \param[in,out] point_count A pointer to an integer containing the
+    //! size of the given array on entry, will receive the number of retrieved
+    //! data points.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure. Returns
+    //! \ref qdb_e_buffer_too_small when the given array is not big enough to
+    //! store all retrieved data points, in which case point_count will contain
+    //! the necessary size for a successfull call.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_int64_get_ranges_no_copy(qdb_handle_t handle,
+                                    const char * alias,
+                                    const char * column,
+                                    const qdb_ts_range_t * ranges,
+                                    qdb_size_t range_count,
+                                    qdb_ts_int64_point * points,
+                                    qdb_size_t * point_count);
+
+    //! \ingroup ts
     //! \brief Retrieves strings in the specified range of the time series
     //! column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1047,10 +1479,50 @@ extern "C"
                              qdb_size_t * point_count);
 
     //! \ingroup ts
+    //! \brief Retrieves strings in the specified range of the time series
+    //! column.
+    //!
+    //! It is an error to call this function on a nonexisting time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param column A pointer to a null-terminated UTF-8 string representing
+    //! the name of the column to work on.
+    //!
+    //! \param ranges An array of ranges (intervals) for which data
+    //! should be retrieved.
+    //!
+    //! \param range_count The number of ranges.
+    //!
+    //! \param points An array in which the data points from all given ranges
+    //! will be placed.
+    //!
+    //! \param[in,out] point_count A pointer to an integer containing the
+    //! size of the given array on entry, will receive the number of retrieved
+    //! data points.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure. Returns
+    //! \ref qdb_e_buffer_too_small when the given array is not big enough to
+    //! store all retrieved data points, in which case point_count will contain
+    //! the necessary size for a successfull call.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_string_get_ranges_no_copy(qdb_handle_t handle,
+                                     const char * alias,
+                                     const char * column,
+                                     const qdb_ts_range_t * ranges,
+                                     qdb_size_t range_count,
+                                     qdb_ts_string_point * points,
+                                     qdb_size_t * point_count);
+
+    //! \ingroup ts
     //! \brief Retrieves timestamps in the specified range of the time
     //! series column.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1085,9 +1557,49 @@ extern "C"
                                 qdb_size_t * point_count);
 
     //! \ingroup ts
+    //! \brief Retrieves timestamps in the specified range of the time
+    //! series column.
+    //!
+    //! It is an error to call this function on a nonexisting time series.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the time series.
+    //!
+    //! \param column A pointer to a null-terminated UTF-8 string representing
+    //! the name of the column to work on.
+    //!
+    //! \param ranges An array of ranges (intervals) for which data
+    //! should be retrieved.
+    //!
+    //! \param range_count The number of ranges.
+    //!
+    //! \param points An array in which the data points from all given ranges
+    //! will be placed.
+    //!
+    //! \param[in,out] point_count A pointer to an integer containing the
+    //! size of the given array on entry, will receive the number of retrieved
+    //! data points.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure. Returns
+    //! \ref qdb_e_buffer_too_small when the given array is not big enough to
+    //! store all retrieved data points, in which case point_count will contain
+    //! the necessary size for a successfull call.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_ts_timestamp_get_ranges_no_copy(qdb_handle_t handle,
+                                        const char * alias,
+                                        const char * column,
+                                        const qdb_ts_range_t * ranges,
+                                        qdb_size_t range_count,
+                                        qdb_ts_timestamp_point * points,
+                                        qdb_size_t * point_count);
+
+    //! \ingroup ts
     //! \brief Aggregate a sub-part of a blob column of the time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1118,7 +1630,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregate a sub-part of the double column of the time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1148,7 +1660,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregate a sub-part of the int64 column of the time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1178,7 +1690,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregate a sub-part of a string column of the time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1209,7 +1721,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Aggregate a sub-part of the timestamp column of the time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1240,7 +1752,7 @@ extern "C"
     //! \brief Retrieves the timestamps, not the values, for a given timeseries
     //! column or the aggregation of all columns.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1278,7 +1790,7 @@ extern "C"
     //! \ingroup ts
     //! \brief Erase all points in the specified range (left inclusive).
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1311,12 +1823,13 @@ extern "C"
     //! \ingroup ts
     //! \typedef qdb_local_table_t
     //! \brief An opaque local table structure used for bulk insertions
-    typedef struct qdb_local_table_internal * qdb_local_table_t;
+    typedef // NOLINT(modernize-use-using)
+        struct qdb_local_table_internal * qdb_local_table_t;
 
     //! \ingroup ts
     //! \brief Initialize a local table for bulk insertion in time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1343,241 +1856,6 @@ extern "C"
                             const qdb_ts_column_info_t * columns,
                             qdb_size_t column_count,
                             qdb_local_table_t * table);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of doubles indicated
-    //! by the given index.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of
-    //! columns in the call to \ref qdb_ts_local_table_init used to
-    //! initialize table.
-    //!
-    //! \param value A value to be set in the chosen column in the current row.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t qdb_ts_row_set_double(qdb_local_table_t table,
-                                                      qdb_size_t column_index,
-                                                      double value);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of integers indicated
-    //! by the given index.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of
-    //! columns in the call to \ref qdb_ts_local_table_init used to
-    //! initialize table.
-    //!
-    //! \param value A value to be set in the chosen column in the current row.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
-    QDB_API_LINKAGE
-    qdb_error_t qdb_ts_row_set_int64(qdb_local_table_t table,
-                                     qdb_size_t column_index,
-                                     qdb_int_t value);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of timestamps
-    //! indicated by the given index.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of
-    //! columns in the call to \ref qdb_ts_local_table_init used to
-    //! initialize table.
-    //!
-    //! \param value A pointer to the value to be set in the chosen column in
-    //! the current row.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
-    QDB_API_LINKAGE
-    qdb_error_t qdb_ts_row_set_timestamp(qdb_local_table_t table,
-                                         qdb_size_t column_index,
-                                         const qdb_timespec_t * value);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of blobs indicated by
-    //!        the given index, copy data.
-    //!
-    //! The data will be copied and kept alive until the following \ref
-    //! qdb_ts_push call returns.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of columns in the call to
-    //! \ref qdb_ts_local_table_init used to initialize table.
-    //!
-    //! \param content A pointer to the data to be set in the chosen column in
-    //! the current row.
-    //!
-    //! \param content_length Length, in bytes, of the data pointed to by \p
-    //! content.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t qdb_ts_row_set_blob(qdb_local_table_t table,
-                                                    qdb_size_t column_index,
-                                                    const void * content,
-                                                    qdb_size_t content_length);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of blobs indicated by
-    //!        the given index without copying data.
-    //!
-    //! The data will NOT be copied and the user must ensure that the buffer
-    //! pointed by \p content is kept alive until the end of the corresponding
-    //! call to \ref qdb_ts_push.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of columns in the call to
-    //! \ref qdb_ts_local_table_init used to initialize table.
-    //!
-    //! \param content A pointer to the data to be set in the chosen column in
-    //! the current row. The pointed data must be kept alive until the following
-    //! \ref qdb_ts_push call returns.
-    //!
-    //! \param content_length Length, in bytes, of the data pointed to by \p
-    //! content.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
-    //!
-    //! \warning This function is still under development. Performance and
-    //!          compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t
-    qdb_ts_row_set_blob_no_copy(qdb_local_table_t table,
-                                qdb_size_t column_index,
-                                const void * content,
-                                qdb_size_t content_length);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of strings indicated
-    //! by the given index, copy data.
-    //!
-    //! The data will be copied and kept alive until the following \ref
-    //! qdb_ts_push call returns.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of columns in the call to
-    //! \ref qdb_ts_local_table_init used to initialize table.
-    //!
-    //! \param content A pointer to the data to be set in the chosen column in
-    //! the current row.
-    //!
-    //! \param content_length Length, in bytes, of the data pointed to by \p
-    //! content.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t
-    qdb_ts_row_set_string(qdb_local_table_t table,
-                          qdb_size_t column_index,
-                          const char * content,
-                          qdb_size_t content_length);
-
-    //! \ingroup ts
-    //! \brief Set a value in the current row in a column of strings indicated
-    //! by the given index without copying data.
-    //!
-    //! The data will NOT be copied and the user must ensure that the buffer
-    //! pointed by \p content is kept alive until the end of the corresponding
-    //! call to \ref qdb_ts_push.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param column_index A zero-based index of the column in which the value
-    //! should be set. The index is based on the order of columns in the call to
-    //! \ref qdb_ts_local_table_init used to initialize table.
-    //!
-    //! \param content A pointer to the data to be set in the chosen column in
-    //! the current row. The pointed data must be kept alive until the following
-    //! \ref qdb_ts_push call returns.
-    //!
-    //! \param content_length Length, in bytes, of the data pointed to by \p
-    //! content.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
-    //!
-    //! \warning This function is still under development. Performance and
-    //!          compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t
-    qdb_ts_row_set_string_no_copy(qdb_local_table_t table,
-                                  qdb_size_t column_index,
-                                  const char * content,
-                                  qdb_size_t content_length);
-
-    //! \ingroup ts
-    //! \brief Append current row to the outcoming data buffer.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \param timestamp The timestamp of all data points in the row to append.
-    //!
-    //! \param[out] row_index A pointer to an integer that will receive the
-    //! index of the currently appended row. The index is counted since the call
-    //! to \ref qdb_ts_local_table_init. The pointer may be null.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //!          compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t
-    qdb_ts_table_row_append(qdb_local_table_t table,
-                            const qdb_timespec_t * timestamp,
-                            qdb_size_t * row_index);
-
-    //! \ingroup ts
-    //! \brief Push all the appended rows to the database.
-    //!
-    //! All the rows that were appended using qdb_ts_table_row_append since the
-    //! last call to \ref qdb_ts_push or \ref qdb_ts_local_table_init will be
-    //! pushed.
-    //!
-    //! \param table A valid local table previously initialized by
-    //! \ref qdb_ts_local_table_init.
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \warning This function is still under development. Performance and
-    //!          compatibility are not guaranteed.
-    QDB_API_LINKAGE qdb_error_t qdb_ts_push(qdb_local_table_t table);
 
     //! \ingroup ts
     //! \brief Retrieves blob data from the current row at the specified
@@ -1865,12 +2143,13 @@ extern "C"
     //! \ingroup ts
     //! \typedef qdb_batch_table_t
     //! \brief An opaque batch table structure used for bulk insertions
-    typedef struct qdb_batch_table_internal * qdb_batch_table_t;
+    typedef // NOLINT(modernize-use-using)
+        struct qdb_batch_table_internal * qdb_batch_table_t;
 
     //! \ingroup ts
     //! \brief Initialize a batch table for bulk insertion in time series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
@@ -1920,7 +2199,7 @@ extern "C"
     //! \brief Add extra columns to a batch table for bulk insertion in time
     //! series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param table A valid batch table previously initialized by
     //! \ref qdb_ts_batch_table_init.
@@ -1941,7 +2220,7 @@ extern "C"
     //! \brief Add extra columns to a batch table for bulk insertion in time
     //! series.
     //!
-    //! It is an error to call this function on a non existing time series.
+    //! It is an error to call this function on a nonexisting time series.
     //!
     //! \param table A valid batch table previously initialized by
     //! \ref qdb_ts_batch_table_init.
@@ -1987,7 +2266,7 @@ extern "C"
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
+    //!       following \ref qdb_ts_batch_push call returns.
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_batch_row_set_blob(qdb_batch_table_t table,
                               qdb_size_t index,
@@ -2009,7 +2288,7 @@ extern "C"
     //!
     //! \param content A pointer to the data to be set in the chosen column in
     //! the current row. The pointed data must be kept alive until the following
-    //! \ref qdb_ts_push call returns.
+    //! \ref qdb_ts_batch_push call returns.
     //!
     //! \param content_length Length, in bytes, of the data pointed to by \p
     //! content.
@@ -2017,7 +2296,7 @@ extern "C"
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
+    //!       following \ref qdb_ts_batch_push call returns.
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_batch_row_set_blob_no_copy(qdb_batch_table_t table,
                                       qdb_size_t index,
@@ -2040,7 +2319,7 @@ extern "C"
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
+    //!       following \ref qdb_ts_batch_push call returns.
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_batch_row_set_string(qdb_batch_table_t table,
                                 qdb_size_t index,
@@ -2062,7 +2341,7 @@ extern "C"
     //!
     //! \param content A pointer to the data to be set in the chosen column in
     //! the current row. The pointed data must be kept alive until the following
-    //! \ref qdb_ts_push call returns.
+    //! \ref qdb_ts_batch_push call returns.
     //!
     //! \param content_length Length, in bytes, of the data pointed to by \p
     //! content.
@@ -2070,7 +2349,7 @@ extern "C"
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \note The data pointed to by \p content must be kept alive until the
-    //!       following \ref qdb_ts_push call returns.
+    //!       following \ref qdb_ts_batch_push call returns.
     QDB_API_LINKAGE qdb_error_t
     qdb_ts_batch_row_set_string_no_copy(qdb_batch_table_t table,
                                         qdb_size_t index,
@@ -2126,7 +2405,6 @@ extern "C"
                                                qdb_size_t index,
                                                const qdb_timespec_t * value);
 
-    //! \ingroup ts
     //! \brief Copy efficiently a buffer that will live until the next push.
     //! Useful to avoid tracking temporary blob or string lifetimes.
     //!
@@ -2433,6 +2711,39 @@ extern "C"
                        qdb_size_t table_count);
 
     //! \ingroup ts
+    //! \brief Push the tables content to the server in Arrow format.
+    //! If needed, data rows will be sorted.
+    //! Optionally, export table schemas.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param tables The tables to send.
+    //! \warning **This parameter used "Move" logic like "C++ std::move".**
+    //! Inside the function call all data fields will be grabbed.
+    //!
+    //! \param table_schemas An optional pointer to the tables schemas:
+    //!  - if it's null, the tables schemas will be retrieved from the server.
+    //!  - if the underlying pointer is null, the tables schemas will be
+    //!  retrieved from the server and exported to the given pointer. It must
+    //!  then be released with \ref qdb_release.
+    //!  - if the underlying pointer is not null, it will assume the given
+    //!  schemas without verifying it with the server before sending tables
+    //!  content.
+    //!
+    //! \param table_count The number of tables (and table schemas if present).
+    //!
+    //! \param mode Specifies how the data are pushed.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t qdb_exp_batch_push_arrow(
+        qdb_handle_t handle,
+        qdb_exp_batch_push_mode_t mode,
+        qdb_exp_batch_push_arrow_table_t * tables,
+        const qdb_exp_batch_push_table_schema_t ** table_schemas,
+        qdb_size_t table_count);
+
+    //! \ingroup ts
     //! \brief Trim the timeseries, so that it uses approximately the provided
     //! size.
     //!
@@ -2458,13 +2769,14 @@ extern "C"
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
     //!
-    //! \param reference A pointer to a shard reference.
+    //! \param bucket_id A pointer to a null-terminated UTF-8 string
+    //! representing the bucket ID
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! @see \ref qdb_ts_bucket_base_time, \ref qdb_ts_bucket_nuke_by_name
     QDB_API_LINKAGE qdb_error_t
-    qdb_ts_bucket_nuke_by_id(qdb_handle_t handle, const qdb_id_t * reference);
+    qdb_ts_bucket_nuke_by_id(qdb_handle_t handle, const char * bucket_id);
 
     //! \ingroup ts
     //! \brief Remove the given shard.

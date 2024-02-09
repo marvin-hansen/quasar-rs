@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,20 +91,19 @@ int main(int argc, char * argv[])
             // doc-end-ts_column_helpers
 
             {
-                // doc-start-ts_list_columns
-                qdb_ts_column_info_t * columns = NULL;
-                qdb_size_t column_count        = 0;
+                // doc-start-ts_get_metadata
+                qdb_ts_metadata_t * metadata;
 
-                error = qdb_ts_list_columns(handle, alias, &columns, &column_count);
-                // doc-end-ts_list_columns
+                error = qdb_ts_get_metadata(handle, alias, &metadata);
+                // doc-end-ts_get_metadata
                 if (error)
                 {
-                    fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_list_columns", qdb_error(error), error);
+                    fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_get_metadata", qdb_error(error), error);
                 }
 
-                // doc-start-ts_list_columns-release
-                qdb_release(handle, columns);
-                // doc-end-ts_list_columns-release
+                // doc-start-ts_metadata-release
+                qdb_release(handle, metadata);
+                // doc-end-ts_metadata-release
             }
 
             {
@@ -148,54 +147,6 @@ int main(int argc, char * argv[])
                 {
                     fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_blob_insert", qdb_error(error), error);
                 }
-            }
-
-            /* Inserting data */
-            {
-                // doc-start-bulk-push-ts_local_table_init
-                qdb_local_table_t local_table;
-                error = qdb_ts_local_table_init(handle, alias, my_columns, 3u, &local_table);
-                // doc-end-bulk-push-ts_local_table_init
-                if (error)
-                {
-                    fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_local_table_init", qdb_error(error), error);
-                }
-
-                // doc-start-bulk-push-ts_row_set
-                error = qdb_ts_row_set_double(local_table, 0, 1.0);
-                // handle error
-
-                error = qdb_ts_row_set_double(local_table, 1, 2.0);
-                // handle error
-
-                void * content        = "hello\0";
-                size_t content_length = 6;
-                error                 = qdb_ts_row_set_blob(local_table, 2, content, content_length);
-                // handle error
-                // doc-end-bulk-push-ts_row_set
-
-                // doc-start-bulk-push-ts_append_row
-                qdb_size_t row_index     = 0;
-                qdb_timespec_t timestamp = {.tv_sec = 0, .tv_nsec = 10};
-                error                    = qdb_ts_table_row_append(local_table, &timestamp, &row_index);
-                // doc-end-bulk-push-ts_append_row
-                if (error)
-                {
-                    fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_table_row_append", qdb_error(error), error);
-                }
-
-                // doc-start-bulk-push-ts_push
-                error = qdb_ts_push(local_table);
-                // doc-end-bulk-push-ts_push
-                if (error)
-                {
-                    fprintf(stderr, "[%s] error: %s (%d)\n", "qdb_ts_table_row_append", qdb_error(error), error);
-                }
-
-                // doc-start-bulk-push-release
-                // don't forget to release the table once finished
-                qdb_release(handle, local_table);
-                // doc-end-bulk-push-release
             }
 
             {

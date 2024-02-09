@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "arrow_abi.h"
 #include "ts.h"
 
 #ifdef __cplusplus
@@ -74,7 +73,7 @@ extern "C"
 
     //! \ingroup query
     //! \brief The type of a result
-    typedef enum qdb_query_result_value_type_t
+    typedef enum qdb_query_result_value_type_t // NOLINT(modernize-use-using)
     {
         qdb_query_result_none = -1,
         qdb_query_result_double = 0,
@@ -82,7 +81,13 @@ extern "C"
         qdb_query_result_int64 = 2,
         qdb_query_result_timestamp = 3,
         qdb_query_result_count = 4,
-        qdb_query_result_string = 5
+        qdb_query_result_string = 5,
+
+        qdb_query_result_array_double = 6,
+        qdb_query_result_array_int64 = 7,
+        qdb_query_result_array_blob = 8,
+        qdb_query_result_array_timestamp = 9,
+        qdb_query_result_array_string = 10,
     } qdb_query_result_value_type_t;
 
     /* explicit packing will prevent some incompatibility cases */
@@ -91,7 +96,7 @@ extern "C"
     //! \ingroup query
     //! \brief A variadic structure holding the result type as well as the
     //! result value
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         qdb_query_result_value_type_t type;
 
@@ -128,12 +133,42 @@ extern "C"
                 const char * content;
                 qdb_size_t content_length;
             } string;
+
+            struct
+            {
+                const double * content;
+                qdb_size_t array_size;
+            } double_array;
+
+            struct
+            {
+                const qdb_int_t * content;
+                qdb_size_t array_size;
+            } int64_array;
+
+            struct
+            {
+                const qdb_blob_t * content;
+                qdb_size_t array_size;
+            } blob_array;
+
+            struct
+            {
+                const qdb_timespec_t * content;
+                qdb_size_t array_size;
+            } timestamp_array;
+
+            struct
+            {
+                const qdb_string_t * content;
+                qdb_size_t array_size;
+            } string_array;
         } payload;
     } qdb_point_result_t;
 
     //! \ingroup query
     //! \brief Holds the result of a query
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! An array of null terminated strings representing the returned
         //! columns
@@ -186,109 +221,39 @@ extern "C"
                                           const char * query,
                                           qdb_query_result_t ** result);
 
-    //! \ingroup query
-    //! \brief Holds a column of an experimental query
+    //! \ingroup client
+    //! \brief Creates a deep copy of a query result
     //!
-    //! \warning This structure is still under development. Compatibility is not
-    //! guaranteed.
-    typedef struct
-    {
-        //! The column name
-        qdb_string_t name;
-
-        //! The column values type
-        qdb_ts_column_type_t type;
-
-        //! The column values
-        union
-        {
-            qdb_blob_t * blobs;
-            qdb_string_t * strings;
-            qdb_timespec_t * timestamps;
-            qdb_int_t * ints;
-            double * doubles;
-        } data;
-    } qdb_query_experimental_column_t;
-
-    //! \ingroup query
-    //! \brief Holds the result of an experimental query
-    //!
-    //! \warning This structure is still under development. Compatibility is not
-    //! guaranteed.
-    typedef struct
-    {
-        //! An array containing the table columns
-        qdb_query_experimental_column_t * columns;
-
-        //! The count of returned columns
-        qdb_size_t column_count;
-
-        //! The number of returned rows
-        qdb_size_t row_count;
-    } qdb_query_experimental_result_t;
-
-    //! \ingroup query
-    //! \brief Run the provided query to return a table.
-    //!
-    //! Currently only supports querying some columns of a timeseries.
-    //!
-    //! Queries are transactional.
-    //!
-    //! The complexity of this function is dependent on the complexity of the
-    //! query.
+    //! The allocated results have to be released later with \ref qdb_release.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
     //!
-    //! \param query A pointer to a null-terminated UTF-8 string representing
-    //! the query to perform.
+    //! \param result A pointer to a buffer to copy
     //!
-    //! \param[out] result A pointer to a pointer of qdb_query_result_t that
-    //! will receive the results. It must be released later with qdb_release.
+    //! \param[out] result_copy A pointer to a a pointer that will receive
+    //! API-allocated results whose content will be a copy of the source results
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \see \ref qdb_release
-    //!
-    //! \warning This function is still under development. Performance and
-    //! compatibility are not guaranteed.
     QDB_API_LINKAGE qdb_error_t
-    qdb_query_experimental(qdb_handle_t handle,
-                           const char * query,
-                           qdb_query_experimental_result_t ** result);
-
-    //! \ingroup query
-    //! \brief Holds a column of a query result in Arrow format
-    //!
-    //! \warning This structure is still under development. Compatibility is not
-    //! guaranteed.
-    typedef struct
-    {
-        //! The column name
-        qdb_string_t name;
-
-        //! The column type
-        struct ArrowSchema schema;
-
-        //! The column content
-        struct ArrowArray array;
-    } qdb_query_arrow_column_t;
+    qdb_query_copy_results(qdb_handle_t handle,
+                           const qdb_query_result_t * result,
+                           qdb_query_result_t ** result_copy);
 
     //! \ingroup query
     //! \brief Holds the result of a query in Arrow format
     //!
     //! \warning This structure is still under development. Compatibility is not
     //! guaranteed.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! An array containing the table columns
-        qdb_query_arrow_column_t * columns;
+        qdb_arrow_column_t * columns;
 
         //! The count of returned columns
         qdb_size_t column_count;
-
-        //! The number of returned rows
-        qdb_size_t row_count;
     } qdb_query_arrow_result_t;
 
     //! \ingroup query
@@ -313,31 +278,11 @@ extern "C"
                        qdb_query_arrow_result_t ** result_copy);
 
     //! \ingroup query
-    //! \brief Copies a query result to the Arrow format
-    //!
-    //! The allocated results have to be released later with \ref qdb_release.
-    //!
-    //! \param handle A valid handle previously initialized by \ref qdb_open or
-    //! \ref qdb_open_tcp.
-    //!
-    //! \param result A pointer to a query result to clone
-    //!
-    //! \param[out] result_copy A pointer to a a pointer that will receive
-    //! API-allocated results whose content will be a copy of the source results
-    //!
-    //! \return A \ref qdb_error_t code indicating success or failure.
-    //!
-    //! \see \ref qdb_release
-    QDB_API_LINKAGE qdb_error_t qdb_query_experimental_to_arrow(
-        qdb_handle_t handle,
-        const qdb_query_experimental_result_t * result,
-        qdb_query_arrow_result_t ** result_copy);
-
-    //! \ingroup query
     //! \typedef qdb_dedup_handle_t
     //! \brief An opaque handle to internal API-allocated structures needed for
     //! deduplicating query results.
-    typedef struct qdb_dedup_handle_internal * qdb_dedup_handle_t;
+    typedef struct // NOLINT(modernize-use-using)
+        qdb_dedup_handle_internal * qdb_dedup_handle_t;
 
     //! \ingroup query
     //! \brief Creates a \ref qdb_dedup_handle_t.
@@ -402,7 +347,8 @@ extern "C"
     //! \typedef qdb_query_cont_handle_t
     //! \brief An opaque handle to internal API-allocated structures needed for
     //! managing a continuous query
-    typedef struct qdb_query_cont_internal * qdb_query_cont_handle_t;
+    typedef struct // NOLINT(modernize-use-using)
+        qdb_query_cont_internal * qdb_query_cont_handle_t;
 
     //! \ingroup query
     //! \typedef qdb_query_cont_callback_t
@@ -413,13 +359,12 @@ extern "C"
     //! The third parameter are the new results for the query since the
     //! callback has been last called
     //! \see qdb_query_continuous
-    typedef int (*qdb_query_cont_callback_t)(void *,
-                                             qdb_error_t,
-                                             const qdb_query_result_t *);
+    typedef int(*qdb_query_cont_callback_t) // NOLINT(modernize-use-using)
+        (void *, qdb_error_t, const qdb_query_result_t *);
 
     //! \ingroup query
     //! \brief The continuous query mode
-    typedef enum qdb_query_continuous_mode_type_t
+    typedef enum qdb_query_continuous_mode_type_t // NOLINT(modernize-use-using)
     {
         qdb_query_continuous_full = 0,
         qdb_query_continuous_new_values_only = 1
@@ -442,6 +387,9 @@ extern "C"
     //! \param mode The mode of the query. Full will return all values at every
     //! call whereas new values will only deliver updates values.
     //!
+    //! \param refresh_rate_ms The refresh rate (in ms) at which the query will
+    //! return results.
+    //!
     //! \param cb A pointer to a function that will be called when new data is
     //! available
     //!
@@ -458,6 +406,7 @@ extern "C"
     qdb_query_continuous(qdb_handle_t handle,
                          const char * query,
                          qdb_query_continuous_mode_type_t mode,
+                         unsigned int refresh_rate_ms,
                          qdb_query_cont_callback_t cb,
                          void * cb_context,
                          qdb_query_cont_handle_t * cont_handle);

@@ -2,7 +2,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ class const_iterator_impl
 public:
     // might not look super efficient, but using raw pointers would result in
     // dangling pointers in too many scenarii
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef std::pair<std::string, api_buffer_ptr> value_type;
 
     struct init_reverse
@@ -83,7 +84,8 @@ public:
     }
 
 public:
-    friend void swap(const_iterator_impl & lhs, const_iterator_impl & rhs)
+    friend void swap(const_iterator_impl & lhs,
+                     const_iterator_impl & rhs) QDB_NOEXCEPT
     {
         using std::swap;
 
@@ -115,7 +117,7 @@ public:
 
 #ifdef QDBAPI_RVALUE_SUPPORT
 public:
-    const_iterator_impl(const_iterator_impl && orig)
+    const_iterator_impl(const_iterator_impl && orig) QDB_NOEXCEPT
         : const_iterator_impl(orig._handle)
     {
         // copy-and-swap idiom
@@ -227,7 +229,7 @@ public:
 
         if (_iterator.content_size > 0)
         {
-            const void * local_copy = NULL;
+            void * local_copy = NULL; // NOLINT(modernize-use-nullptr)
 
             assert(_iterator.content);
 
@@ -248,6 +250,7 @@ public:
 
             assert(local_copy);
 
+            // NOLINTNEXTLINE(modernize-make-shared)
             _value.second.reset(new api_buffer(
                 _iterator.handle, local_copy, _iterator.content_size));
 
@@ -297,11 +300,13 @@ private:
 class const_iterator_base
 {
 public:
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef std::bidirectional_iterator_tag iterator_category;
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef const_iterator_impl::value_type value_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef value_type* pointer;
-    typedef value_type& reference;
+    typedef std::ptrdiff_t difference_type; // NOLINT(modernize-use-using)
+    typedef value_type * pointer;           // NOLINT(modernize-use-using)
+    typedef value_type & reference;         // NOLINT(modernize-use-using)
 
 protected:
     explicit const_iterator_base(qdb_handle_t h) : _impl(h) {}
@@ -468,6 +473,7 @@ namespace detail
 class const_tag_iterator_impl
 {
 public:
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef std::pair<std::string, qdb_entry_type_t> value_type;
 
     struct init_end
@@ -487,7 +493,8 @@ public:
 
     // initializes as end iterator
     const_tag_iterator_impl(qdb_handle_t h, init_end /*unused*/)
-        : _handle(h), _end(true), _tag(NULL), _last_error(qdb_e_alias_not_found)
+        : _handle(h), _end(true), _tag(NULL), // NOLINT(modernize-use-nullptr)
+          _last_error(qdb_e_alias_not_found)
     {
         // makes sure the iterator will be seen as invalid to prevent any
         // strange error
@@ -512,7 +519,8 @@ public:
     // copy construction and assignment, we need to do a low level copy of the
     // iterator otherwise pointers will be dangling...
     const_tag_iterator_impl(const const_tag_iterator_impl & orig)
-        : _handle(orig._handle), _end(orig._end), _tag(NULL),
+        : _handle(orig._handle), _end(orig._end),
+          _tag(NULL), // NOLINT(modernize-use-nullptr)
           _last_error(orig._last_error), _value(orig._value)
     {
         qdb_tag_iterator_copy(&orig._iterator, &_iterator);
@@ -530,7 +538,7 @@ public:
 
 #ifdef QDBAPI_RVALUE_SUPPORT
 public:
-    const_tag_iterator_impl(const_tag_iterator_impl && orig)
+    const_tag_iterator_impl(const_tag_iterator_impl && orig) QDB_NOEXCEPT
         : const_tag_iterator_impl(orig._handle, orig._tag)
     {
         // copy-and-swap idiom
@@ -677,11 +685,13 @@ private:
 class const_tag_iterator_base
 {
 public:
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef std::forward_iterator_tag iterator_category;
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef const_tag_iterator_impl::value_type value_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef value_type* pointer;
-    typedef value_type& reference;
+    typedef std::ptrdiff_t difference_type; // NOLINT(modernize-use-using)
+    typedef value_type * pointer;           // NOLINT(modernize-use-using)
+    typedef value_type & reference;         // NOLINT(modernize-use-using)
 
 protected:
     const_tag_iterator_base(qdb_handle_t h, const char * tag) : _impl(h, tag) {}

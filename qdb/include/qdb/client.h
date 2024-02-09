@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
  */
 
 #include "error.h"
-#include <stddef.h>
-#include <time.h>
+#include <stddef.h> // NOLINT(modernize-deprecated-headers)
+#include <time.h>   // NOLINT(modernize-deprecated-headers)
 
 /*!
 
@@ -48,6 +48,7 @@ documentation is available online at https://doc.quasardb.net/
 
 Function categories:
 - \ref client
+- \ref double
 - \ref error
 - \ref attr
 - \ref batch
@@ -62,6 +63,7 @@ Function categories:
 - \ref query
 - \ref suffix
 - \ref tag
+- \ref timestamp
 - \ref ts
 */
 
@@ -86,14 +88,14 @@ extern "C"
 //! \remark \ref qdb_time_t MUST be 64-bit large. The API will probably not link
 //! otherwise.
 #ifdef _MSC_VER
-    typedef __time64_t qdb_time_t;
+    typedef __time64_t qdb_time_t; // NOLINT(modernize-use-using)
 #else
 
 #    if QDB_PLATFORM_32
-typedef /*unsigned*/ long long qdb_time_t;
+typedef /*unsigned*/ long long qdb_time_t; // NOLINT(modernize-use-using)
 #    else
-#        include <stdint.h>
-typedef time_t qdb_time_t;
+#        include <stdint.h> // NOLINT(modernize-deprecated-headers)
+typedef time_t qdb_time_t; // NOLINT(modernize-use-using)
 #    endif
 
 #endif
@@ -101,22 +103,22 @@ typedef time_t qdb_time_t;
     //! \ingroup client
     //! \typedef qdb_size_t
     //! \brief An alias for size_t
-    typedef size_t qdb_size_t;
+    typedef size_t qdb_size_t; // NOLINT(modernize-use-using)
 
 //! \ingroup client
 //! \typedef qdb_int_t
 //! \brief A cross-platform type that represents a signed 64-bit integer.
 #ifdef _MSC_VER
-    typedef __int16 qdb_int16_t;
-    typedef unsigned __int16 qdb_uint16_t;
-    typedef __int64 qdb_int_t;
-    typedef unsigned __int64 qdb_uint_t;
+    typedef __int16 qdb_int16_t;           // NOLINT(modernize-use-using)
+    typedef unsigned __int16 qdb_uint16_t; // NOLINT(modernize-use-using)
+    typedef __int64 qdb_int_t;             // NOLINT(modernize-use-using)
+    typedef unsigned __int64 qdb_uint_t;   // NOLINT(modernize-use-using)
 #else
-#    include <stdint.h>
-typedef int16_t qdb_int16_t;
-typedef uint16_t qdb_uint16_t;
-typedef int64_t qdb_int_t;
-typedef uint64_t qdb_uint_t;
+#    include <stdint.h> // NOLINT(modernize-deprecated-headers)
+typedef int16_t qdb_int16_t;   // NOLINT(modernize-use-using)
+typedef uint16_t qdb_uint16_t; // NOLINT(modernize-use-using)
+typedef int64_t qdb_int_t;     // NOLINT(modernize-use-using)
+typedef uint64_t qdb_uint_t;   // NOLINT(modernize-use-using)
 #endif
 
 //! \ingroup client
@@ -136,7 +138,7 @@ typedef uint64_t qdb_uint_t;
 
     //! \ingroup client
     //! \brief An enumeration of API limits
-    typedef enum qdb_limits_t
+    typedef enum qdb_limits_t // NOLINT(modernize-use-using)
     {
         //! The maximum allowed length for aliases.
         qdb_l_max_alias_length = 1024,
@@ -152,7 +154,7 @@ typedef uint64_t qdb_uint_t;
     //! \typedef qdb_protocol_t
     //! \brief An enumeration of allowed network protocols.
     //! \see \ref qdb_open
-    typedef enum qdb_protocol_t
+    typedef enum qdb_protocol_t // NOLINT(modernize-use-using)
     {
         //! Uses TCP/IP to communicate with the cluster.
         //! This is currently the only supported network protocol.
@@ -163,6 +165,7 @@ typedef uint64_t qdb_uint_t;
     //! \typedef qdb_handle_t
     //! \brief An opaque handle to internal API-allocated structures needed for
     //! maintaining connection to a cluster.
+    // NOLINTNEXTLINE(modernize-use-using)
     typedef struct qdb_handle_internal * qdb_handle_t;
 
 /* explicit packing will prevent some incompatibility cases */
@@ -173,7 +176,7 @@ typedef uint64_t qdb_uint_t;
     //! \struct qdb_timespec_t
     //! \brief A structure representing an elapsed time since epoch
     //! (cross-platform equivalent of timespec structure)
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! number of whole seconds of elapsed time
         qdb_time_t tv_sec;
@@ -197,7 +200,7 @@ typedef uint64_t qdb_uint_t;
     //! \ingroup client
     //! \struct qdb_remote_node_t
     //! \brief A structure representing the address of a quasardb node.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! A pointer to a null-terminated string representing the
         //! address of the remote node
@@ -215,7 +218,7 @@ typedef uint64_t qdb_uint_t;
     //! \ingroup client
     //! \typedef qdb_entry_type_t
     //! \brief A enumeration representing possible entries type.
-    typedef enum qdb_entry_type_t
+    typedef enum qdb_entry_type_t // NOLINT(modernize-use-using)
     {
         //! Uninitialized value.
         qdb_entry_uninitialized = -1,
@@ -233,6 +236,12 @@ typedef uint64_t qdb_uint_t;
         qdb_entry_stream = 5,
         //! Distributed time series.
         qdb_entry_ts = 6,
+        //! Double-precision floating point number.
+        qdb_entry_double = 10,
+        //! 128-bit timestamp with nanosecond precision.
+        qdb_entry_timestamp = 11,
+        //! UTF-8 string.
+        qdb_entry_string = 12,
 
         qdb_entry_internal_ts_double_bucket = 20,
         qdb_entry_internal_ts_blob_bucket = 21,
@@ -250,14 +259,14 @@ typedef uint64_t qdb_uint_t;
     //! \ingroup client
     //! \struct qdb_id_t
     //! \brief A cluster-wide unique identifier.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         qdb_int_t data[4];
     } qdb_id_t;
 
     //! \ingroup client
     //! \brief A structure representing a character string of the given length.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         const char * data;
         qdb_size_t length;
@@ -275,7 +284,7 @@ typedef uint64_t qdb_uint_t;
     //! \struct qdb_entry_metadata_t
     //! \brief A structure representing the metadata of an entry in the
     //! database.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! Entry key (alias).
         qdb_string_t alias;
@@ -358,16 +367,19 @@ typedef uint64_t qdb_uint_t;
     //! \param[out] error An optional pointer to a \ref qdb_error_t that will be
     //! set to the error code of the last API call with the given handle.
     //!
-    //! \param[out] message An optional pointer to a \ref qdb_string_t that will
-    //! store a message describing the last API call with the given handle. The
-    //! buffer is API managed and should not be freed or written to by the
-    //! caller. It's invalidated by subsequent API calls.
+    //! \param[out] message An optional pointer to a pointer that will be set to
+    //! a \ref qdb_string_t which stores the message describing the last API
+    //! call with the given handle. The client is required to release the memory
+    //! owned by this pointer once it's no longer used. Memory will not be
+    //! allocated for an empty internal error message.
+    //!
+    //! \see \ref qdb_release
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     QDB_API_LINKAGE qdb_error_t qdb_get_last_error(qdb_handle_t handle,
                                                    qdb_error_t * error,
-                                                   qdb_string_t * message);
+                                                   qdb_string_t ** message);
 
     //! \ingroup client
     //! \brief Binds the client instance to a quasardb cluster and connect to at
@@ -445,7 +457,28 @@ typedef uint64_t qdb_uint_t;
     qdb_copy_alloc_buffer(qdb_handle_t handle,
                           const void * source_buffer,
                           qdb_size_t source_buffer_size,
-                          const void ** dest_buffer);
+                          void ** dest_buffer);
+
+    //! \ingroup client
+    //! \brief Allocates a buffer managed by the Quasar API.
+    //!
+    //! The allocated buffer has to be released later with \ref qdb_release.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param buffer_size The size of the buffer to allocate, greater
+    //! than 0.
+    //!
+    //! \param[out] dest_buffer A pointer to a a pointer of an API-allocated
+    //! buffer of the given size. The content of the buffer is undefined.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \see \ref qdb_release
+    QDB_API_LINKAGE qdb_error_t qdb_alloc_buffer(qdb_handle_t handle,
+                                                 qdb_size_t buffer_size,
+                                                 void ** dest_buffer);
 
     //! \ingroup client
     //! \brief Releases an API-allocated buffer.
@@ -708,53 +741,197 @@ typedef uint64_t qdb_uint_t;
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
     //!
+    //! \param pause_ms A pause interval, in milliseconds, between trimming
+    //! individual entries.
+    //!
     //! \param timeout_ms A timeout value, in milliseconds.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \attention This function impacts the performance of the cluster.
-    //!
     //! \see \ref qdb_cluster_compact
     QDB_API_LINKAGE qdb_error_t qdb_trim_all(qdb_handle_t handle,
+                                             int pause_ms,
                                              int timeout_ms);
+
+    //! \ingroup client
+    //! \brief Get the trimming process progress.
+    //!
+    //! This function requests each nodes to check the trimming process
+    //! status. \see \ref qdb_cluster_compact
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param run The trimming process status.
+    //! If 0 than the trimming process is finished else it is running.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t qdb_trim_all_progress(qdb_handle_t handle,
+                                                      qdb_uint_t * run);
+
+    //! \ingroup client
+    //! \brief Abort the running trimming process.
+    //!
+    //! This function requests each nodes to abort the trimming process.
+    //! This function aborts the last active trimming process.
+    //! \see \ref qdb_cluster_compact
+    //!
+    //! \param handle A valid handle previously initialized by \ref
+    //! qdb_direct_connect
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t qdb_abort_trim_all(qdb_handle_t handle);
+
+    //! \ingroup client
+    //! \brief Trims specific key
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param alias A pointer to a null-terminated UTF-8 string representing
+    //! the alias of the entry.
+    //!
+    //! \param bytes_trimmed A pointer to unsigned int to store number of
+    //! bytes trimmed
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t qdb_trim_entry(qdb_handle_t handle,
+                                               const char * alias,
+                                               qdb_uint_t * bytes_trimmed);
 
     //! \ingroup client
     //! \typedef qdb_compact_options_t
     //! \brief An enumeration of compact options
     //! \see \ref qdb_cluster_compact
-    typedef enum qdb_compact_options_t
+    typedef enum qdb_compact_options_t // NOLINT(modernize-use-using)
     {
         //! Compact the entire database in a single operation
         qdb_compact_full = 0,
         //! Compact the database one slice at a time (reduces peak disk usage
         //! during compaction)
         qdb_compact_piecewise = 1,
+        //! Compact the only specified column family
+        qdb_compact_cf = 2,
+        //! Compact the database for the only specified key prefix
+        qdb_compact_prefix = 3,
     } qdb_compact_options_t;
+
+    //! \ingroup client
+    //! \brief The optional parameters for a compact operation
+    typedef struct // NOLINT(modernize-use-using)
+    {
+        //! The compaction mode.
+        qdb_compact_options_t options;
+
+        union
+        {
+            //! Parameter for the compaction mode \ref qdb_compact_cf.
+            //! A pointer to a null-terminated UTF-8 string representing
+            //! the family name.
+            const char * column_family;
+
+            //! Parameter for the compaction mode \ref qdb_compact_prefix.
+            //! A pointer to a null-terminated UTF-8 string representing
+            //! the desired key prefix.
+            const char * key_prefix;
+        } params;
+    } qdb_compact_params_t;
 
     //! \ingroup client
     //! \brief Compacts all data in the persistence layer on all the nodes of
     //! the cluster.
     //!
     //! This function will request each nodes to compact files on disk. Because
-    //! this operation is I/O and CPU intensive, it is not recommended to run it
-    //! when the cluster is heavily used.
+    //! this operation is I/O and CPU intensive.
+    //!
+    //! Triggers a compaction. The function returns right after the compaction
+    //! is started and will not wait for its completion. Only one compaction
+    //! per cluster can be running at any point in time. Returns an error if
+    //! a compaction is already in progress.
     //!
     //! \param handle A valid handle previously initialized by \ref qdb_open or
     //! \ref qdb_open_tcp.
     //!
-    //! \param options Options for the compaction operation.
-    //!
-    //! \param timeout_ms A timeout value, in milliseconds.
+    //! \param params The compaction parameters (optional).
+    //! If not defined then the mode is \ref qdb_compact_full
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
     //!
     //! \attention This function impacts the performance of the cluster.
-    //!
     //! \see \ref qdb_trim_all
     QDB_API_LINKAGE qdb_error_t
     qdb_cluster_compact(qdb_handle_t handle,
-                        qdb_compact_options_t options,
-                        int timeout_ms);
+                        const qdb_compact_params_t * params);
+
+    //! \ingroup client
+    //! \brief Get the compaction process progress.
+    //!
+    //! This function requests each node to check the compaction process
+    //! status. \see \ref qdb_cluster_compact
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param run The compaction process status.
+    //! If 0 than the compaction process is finished else it is ran.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_cluster_get_compact_progress(qdb_handle_t handle, qdb_uint_t * run);
+
+    //! \ingroup client
+    //! \brief Abort the running compaction process.
+    //!
+    //! This function requests each node to abort the compaction process.
+    //! This function aborts the last active compact process.
+    //! \see \ref qdb_cluster_compact
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t qdb_cluster_abort_compact(qdb_handle_t handle);
+
+    //! \ingroup client
+    //! \brief For the read only cluster call the synchronization with the
+    //! master DB.
+    //!
+    //! This function will request each nodes to synchronize with master DB.
+    //! Because this operation is I/O and CPU intensive.
+    //!
+    //! Triggers a synchronization. The function returns right after the
+    //! synchronization is started and will not wait for its completion. Only
+    //! one synchronization per cluster can be running at any point in time.
+    //! Returns an error if a synchronization is already in progress.
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    //!
+    //! \attention This function impacts the performance of the cluster.
+    //! \see \ref qdb_trim_all
+    QDB_API_LINKAGE qdb_error_t
+    qdb_cluster_sync_with_master(qdb_handle_t handle);
+
+    //! \ingroup client
+    //! \brief For the read only cluster get the synchronization with the master
+    //! DB process progress.
+    //!
+    //! This function requests each node to check the synchronization process
+    //! status. \see \ref qdb_cluster_sync_with_master
+    //!
+    //! \param handle A valid handle previously initialized by \ref qdb_open or
+    //! \ref qdb_open_tcp.
+    //!
+    //! \param run The synchronization process status.
+    //! If 0 than the synchronization process is finished else it is ran.
+    //!
+    //! \return A \ref qdb_error_t code indicating success or failure.
+    QDB_API_LINKAGE qdb_error_t
+    qdb_cluster_get_sync_with_master_progress(qdb_handle_t handle,
+                                              qdb_uint_t * run);
 
     //! \ingroup client
     //! \brief Removes all cached data from all the nodes of the cluster.

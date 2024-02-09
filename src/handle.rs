@@ -35,7 +35,7 @@ pub fn new_handle() -> Result<HandleType, ErrorType> {
 ///    The handle is already opened with tcp protocol
 ///    The handle is already connected with the clusterURI string
 pub fn setup_handle(cluster_uri: &str, timeout: i32) -> Result<HandleType, ErrorType> {
-    unsafe {
+     {
         // create new handle
         let handle = match new_handle() {
             Ok(h) => h,
@@ -82,7 +82,7 @@ pub fn setup_secured_handle(
 )
     -> Result<HandleType, ErrorType>
 {
-    unsafe {
+     {
         let cluster_key = match handler_credentials::cluster_key_from_file(cluster_key_path) {
             Some(k) => k,
             None => return Err(ErrorType::ErrClusterKeyNotFound)

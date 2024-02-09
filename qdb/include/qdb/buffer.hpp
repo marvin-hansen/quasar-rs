@@ -2,7 +2,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ namespace qdb
 template <typename T>
 struct shared_ptr
 {
-    typedef std::tr1::shared_ptr<T> type;
+    typedef std::tr1::shared_ptr<T> type; // NOLINT(modernize-use-using)
 };
 
 #else
@@ -63,7 +63,7 @@ struct shared_ptr
 template <typename T>
 struct shared_ptr
 {
-    typedef std::shared_ptr<T> type;
+    typedef std::shared_ptr<T> type; // NOLINT(modernize-use-using)
 };
 
 #endif
@@ -87,7 +87,9 @@ public:
 private:
     // prevent copy
     api_buffer(const api_buffer & /*unused*/)
-        : _handle(NULL), _data(NULL), _length(0)
+        : _handle(NULL), // NOLINT(modernize-use-nullptr)
+          _data(NULL),   // NOLINT(modernize-use-nullptr)
+          _length(0)
     {
     }
 
@@ -104,22 +106,22 @@ public:
     }
 
 public:
-    const char * data() const
+    const char * data() const // NOLINT(modernize-use-nodiscard)
     {
         return _data;
     }
 
-    qdb_size_t size() const
+    qdb_size_t size() const // NOLINT(modernize-use-nodiscard)
     {
         return _length;
     }
 
-    const char * begin() const
+    const char * begin() const // NOLINT(modernize-use-nodiscard)
     {
         return data();
     }
 
-    const char * end() const
+    const char * end() const // NOLINT(modernize-use-nodiscard)
     {
         return data() + size();
     }
@@ -130,6 +132,7 @@ private:
     const qdb_size_t _length;
 };
 
+// NOLINTNEXTLINE(modernize-use-using)
 typedef qdb::shared_ptr<api_buffer>::type api_buffer_ptr;
 
 inline api_buffer_ptr
@@ -137,6 +140,7 @@ make_api_buffer_ptr(qdb_handle_t h, const void * data, qdb_size_t length)
 {
     if (!data || !length)
     {
+        // NOLINTNEXTLINE(modernize-return-braced-init-list)
         return api_buffer_ptr();
     }
 

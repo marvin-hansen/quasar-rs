@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,10 +50,10 @@ static const char * get_log_level_as_string(qdb_log_level_t log_level)
         return "error";
     case qdb_log_panic:
         return "panic";
-    default:
-        assert(!"unknown enum value");
-        return "unknown";
     }
+
+    assert(!"unknown enum value");
+    return "unknown";
 }
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ > 201112L)) || (defined(__cplusplus) && (__cplusplus > 201103L))

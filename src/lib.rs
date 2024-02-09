@@ -3,7 +3,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-include!(concat!("/Users/marvin/CLionProjects/quasar-rs/gen", "/bindings.rs"));
+include!(concat!("/Users/marvin/RustroverProjects/quasar-rs/gen", "/bindings.rs"));
 
 pub mod error;
 pub mod cluster;

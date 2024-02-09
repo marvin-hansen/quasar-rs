@@ -1,7 +1,7 @@
 #include <qdb/client.h>
 #include <stdlib.h>
 
-int main()
+int main(void)
 {
     // doc-start-open
     qdb_handle_t handle;

@@ -2,7 +2,7 @@
 #include <qdb/option.h>
 #include <stdlib.h>
 
-int main()
+int main(void)
 {
     qdb_handle_t handle;
     qdb_error_t error = qdb_open(&handle, qdb_p_tcp);

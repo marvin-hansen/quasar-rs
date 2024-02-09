@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -301,7 +301,7 @@ extern "C"
 
     //! \ingroup tag
     //! \brief An iterator to iterate on the entries matching a certain tag.
-    typedef struct
+    typedef struct // NOLINT(modernize-use-using)
     {
         //! the associated handle
         //! set by \ref qdb_tag_iterator_begin

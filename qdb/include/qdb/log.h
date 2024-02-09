@@ -6,7 +6,7 @@
 
 /*
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2023, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
  */
 
 #include "error.h"
-#include <stddef.h>
+#include <stddef.h> // NOLINT(modernize-deprecated-headers)
 
 #ifdef __cplusplus
 extern "C"
@@ -46,7 +46,7 @@ extern "C"
     //! \brief An enumeration of log level
     //! \see \ref qdb_open
     //! \see \ref qdb_log_callback
-    typedef enum qdb_log_level_t
+    typedef enum qdb_log_level_t // NOLINT(modernize-use-using)
     {
         //! Log everything. Very verbose.
         qdb_log_detailed = 100,
@@ -68,24 +68,27 @@ extern "C"
     //! qdb_log_add_callback
     //!
     //! \see \ref qdb_log_add_callback, \ref qdb_log_remove_callback
-    typedef size_t qdb_log_callback_id;
+    typedef size_t qdb_log_callback_id; // NOLINT(modernize-use-using)
 
     //! \ingroup log
     //! \typedef qdb_log_callback
     //! \brief A typedef representing a log callback
     //!
     //! \see \ref qdb_log_add_callback, \ref qdb_log_remove_callback
-    typedef void (*qdb_log_callback)(
-        qdb_log_level_t,       /* log level */
-        const unsigned long *, /* [year, month, day, hours,
+    typedef void (*qdb_log_callback)( // NOLINT(modernize-use-using)
+        qdb_log_level_t,              /* log level */
+        const unsigned long *,        // NOLINT(google-runtime-int)
+        /* [year, month, day, hours,
                                   minutes, seconds] (valid only
                                   in the context of the callback)
                                   */
-        unsigned long,         /* process id */
-        unsigned long,         /* thread id */
-        const char *,          /* message buffer (valid only in the
-                                  context of the callback) */
-        size_t                 /* message buffer size */
+        unsigned long, // NOLINT(google-runtime-int)
+        /* process id */
+        unsigned long, // NOLINT(google-runtime-int)
+        /* thread id */
+        const char *, /* message buffer (valid only in the
+                         context of the callback) */
+        size_t        /* message buffer size */
     );
 
     //! \ingroup log
@@ -95,7 +98,7 @@ extern "C"
     //! \param cb A callback of type \ref qdb_log_callback. The callback will be
     //! called every time the API emits a log message.
     //!
-    //! \param callback_id A pointer to an unique callback identifier that can
+    //! \param callback_id A pointer to a unique callback identifier that can
     //! be used to remove the callback.
     //!
     //! \return A \ref qdb_error_t code indicating success or failure.
@@ -133,7 +136,8 @@ extern "C"
     //! \brief Set logs to be synchronous for each API call (disabled by
     //! default).
     //!
-    //! \param sync_logger 1 if logs must be flushed before returning from each API call, 0
+    //! \param sync_logger 1 if logs must be flushed before returning from each
+    //! API call, 0
     //!  otherwise.
     //!
     //! \warning This function is still under development. Performance and

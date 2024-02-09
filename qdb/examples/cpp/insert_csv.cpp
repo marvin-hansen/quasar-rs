@@ -20,10 +20,9 @@ static const std::array<qdb_ts_column_info_t, expected_col_count> expected_cols{
 
 static void open_time_series(qdb::handle & h, const char * const time_series)
 {
-    qdb_ts_column_info_t * existing_cols = nullptr;
-    qdb_size_t existing_cols_count       = 0;
+    qdb_ts_metadata_t * metadata = nullptr;
 
-    qdb_error_t err = qdb_ts_list_columns(h, time_series, &existing_cols, &existing_cols_count);
+    qdb_error_t err = qdb_ts_get_metadata(h, time_series, &metadata);
     if (err == qdb_e_alias_not_found)
     {
         // create the open/high/low/close/volume time series
@@ -34,8 +33,9 @@ static void open_time_series(qdb::handle & h, const char * const time_series)
     }
 
     if (QDB_FAILURE(err)) throw err;
+    qdb_size_t existing_cols_count = metadata->column_count;
 
-    qdb_release(h, existing_cols);
+    qdb_release(h, metadata);
 
     if (existing_cols_count != expected_col_count) throw std::runtime_error("Unexpected columns count");
 }
@@ -133,7 +133,7 @@ private:
     size_t _rows_count;
 };
 
-#if QDB_INSERT_MULTITHREADED
+#ifdef QDB_INSERT_MULTITHREADED
 static void insert_columns_multithreaded(qdb::handle & h, const columns & cols, qdb_size_t rows_count, const char * time_series)
 {
     const size_t cols_count = cols.size();
@@ -163,7 +163,9 @@ static void insert_columns_multithreaded(qdb::handle & h, const columns & cols, 
 
     tasks.clear();
 
-    auto it = std::find_if(errors.cbegin(), errors.cend(), [](qdb_error_t err) { return QDB_FAILURE(err); });
+    auto it = std::find_if(errors.cbegin(), errors.cend(), [](qdb_error_t err) {
+        return QDB_FAILURE(err);
+    });
     if (it != errors.cend())
     {
         throw *it;

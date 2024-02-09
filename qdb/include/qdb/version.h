@@ -7,10 +7,10 @@
 
 /*
  *
- * Official quasardb C API 3.10.2
- * 26090bc76b 2021-12-30 16:52:05 +0100
+ * Official quasardb C API 3.14.1
+ * 27761e5bd4bee299a94932278182bfae63b5d54d 2023-12-28 01:42:01 +0700
  *
- * Copyright (c) 2009-2021, quasardb SAS. All rights reserved.
+ * Copyright (c) 2009-2022, quasardb SAS. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@
 
 // clang-format off
 #define QDB_API_VERSION_MAJOR 3
-#define QDB_API_VERSION_MINOR 10
-#define QDB_API_VERSION_PATCH 2
+#define QDB_API_VERSION_MINOR 14
+#define QDB_API_VERSION_PATCH 1
 // clang-format on
 
 #define QDB_MAKE_VERSION(major, minor, patch)                     \

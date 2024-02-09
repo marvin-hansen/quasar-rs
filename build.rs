@@ -1,5 +1,6 @@
 use std::env;
 use std::path::{Path, PathBuf};
+use bindgen::CargoCallbacks;
 
 fn main() {
     // Tried this to no avail. https://github.com/rust-lang/cargo/issues/4421
@@ -14,14 +15,17 @@ fn main() {
 
     // linking c to the underlying dylib library
     // https://www.reddit.com/r/rust/comments/885t1h/bindgen_linking_question/
-    println!("cargo:rustc-link-lib=dylib=c++");
-    println!("cargo:rustc-link-lib=dylib=c++abi");
-    println!("cargo:rustc-link-lib=dylib=libqdb_api");
+    // println!("cargo:rustc-link-lib=dylib=c++");
+    // println!("cargo:rustc-link-lib=dylib=c++abi");
+    println!("cargo:rustc-link-lib=libqdb_api");
 
     // Set the dylib search path relative to the current crate
     // https://stackoverflow.com/questions/41917096/how-do-i-make-rustc-link-search-relative-to-the-project-location
     let dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     println!("cargo:rustc-link-search=native={}", Path::new(&dir).join("qdb/lib").display());
+
+    // Tell rustc to link the qdb library.
+    println!("cargo:rustc-link-lib=libqdb_api");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
@@ -34,7 +38,7 @@ fn main() {
         // Derive debug implementation for structs and enums
         .derive_debug(true)
         // Tell cargo to invalidate the built crate whenever any of the header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(CargoCallbacks::new()))
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
